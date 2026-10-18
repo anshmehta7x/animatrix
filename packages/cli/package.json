@@ -1,5 +1,19 @@
 {
-  "name": "tmp",
+  "name": "@anshmehta7x/animatrix-cli",
+  "version": "0.1.0",
   "private": true,
-  "type": "module"
+  "description": "animatrix: command-line control for the AniMe Matrix",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "animatrix": "dist/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@anshmehta7x/animatrix": "workspace:*",
+    "@anshmehta7x/animatrix-core": "workspace:*",
+    "@anshmehta7x/animatrix-effects": "workspace:*"
+  }
 }

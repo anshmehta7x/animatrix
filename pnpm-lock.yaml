@@ -54,7 +54,17 @@ importers:
         specifier: ^2.19.1
         version: 2.19.1
 
-  packages/cli: {}
+  packages/cli:
+    dependencies:
+      '@anshmehta7x/animatrix':
+        specifier: workspace:*
+        version: link:../animatrix
+      '@anshmehta7x/animatrix-core':
+        specifier: workspace:*
+        version: link:../core
+      '@anshmehta7x/animatrix-effects':
+        specifier: workspace:*
+        version: link:../effects
 
   packages/core: {}
 

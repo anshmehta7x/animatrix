@@ -64,7 +64,7 @@ export class DeviceBusyError extends AnimatrixError {
       holder === "asusd"
         ? "asusd owns the AniMe device. Stop it (systemctl stop asusd) or use asusctl instead."
         : holder === "animatrixd"
-          ? "animatrixd is running; use Matrix.open() without { direct: true } to go through it."
+          ? "animatrixd is running: go through it (drop --direct / direct: true) or stop it with systemctl --user stop animatrixd."
           : "Close the other program using the AniMe Matrix.";
     super("DEVICE_BUSY", `AniMe Matrix is in use by ${holder}`, hint, cause);
     this.holder = holder;
