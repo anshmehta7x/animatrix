@@ -1,6 +1,12 @@
-# animatrix
+# animatrix: AniMe Matrix control for Linux
 
-Control the **ASUS ROG AniMe Matrix** lid display on Linux: images, GIFs, video, text, clocks, a music visualiser, generative effects and the firmware's own animations. It comes in four parts:
+[Website](https://anshmehta7x.github.io/animatrix/) · [Releases](https://github.com/anshmehta7x/animatrix/releases) · [D-Bus API](docs/dbus-api.md)
+
+Control the **ASUS ROG AniMe Matrix** LED display on the lid of the ROG Zephyrus G14 and G16 from Linux. Show images, GIFs, video, text, clocks, a music visualiser, generative effects and the firmware's own animations. It's an open-source Linux alternative to the AniMe Matrix controls in Armoury Crate and G-Helper, and it needs neither Windows tools nor asusd.
+
+<p><img src="docs/images/panel-dark.png" width="300" alt="animatrix tray panel showing a live preview of the AniMe Matrix LED lattice with a clock" /></p>
+
+It comes in four parts:
 
 - **`animatrixd`**: a small daemon, the only process that writes to the device. It runs as a systemd user service and exposes a D-Bus API.
 - **A tray app**: a compact 400×600 panel with a live preview of the real LED lattice.
@@ -65,8 +71,7 @@ If `asusd` (asusctl) is running it claims the AniMe device, and animatrix tells 
 ## Screenshots
 
 <p>
-  <img src="docs/images/panel-dark.png" width="300" alt="Panel in dark mode showing the clock on the live LED preview" />
-  <img src="docs/images/panel-light-power.png" width="300" alt="Panel in light mode on the Power page" />
+  <img src="docs/images/panel-light-power.png" width="300" alt="animatrix panel in light mode on the Power page" />
 </p>
 
 ## Command line
@@ -122,6 +127,26 @@ Through the daemon, effects keep running after your script exits. In direct mode
 - [D-Bus API](docs/dbus-api.md)
 - [Packaging for distros](docs/packaging.md)
 - [Contributing: add an effect or a model](CONTRIBUTING.md)
+
+## FAQ
+
+**How do I control the AniMe Matrix on Linux?**
+Install animatrix with the one-line installer above, then open the panel or use `animatrix image cat.png`. It talks to the panel directly over hidraw, so it needs neither Windows, Armoury Crate nor G-Helper.
+
+**Which laptops have an AniMe Matrix?**
+The ROG Zephyrus G14 2020/2021 (GA401), the G14 2022/2023 (GA402R, GA402X, GA402N) and the Zephyrus G16 2023 (GU604). Since 2024 the G14 and G16 have _Slash Lighting_ instead (GA403, GU605), which is different hardware and not supported.
+
+**Does it work with asusctl / asusd?**
+asusctl handles fans, keyboard lighting and power profiles; keep using it for those. Its daemon, asusd, also claims the AniMe device, so stop asusd while animatrix runs. animatrix detects a running asusd and tells you.
+
+**Can I play a GIF or a video on the lid?**
+Yes: `animatrix gif loop.gif` uses each frame's own timing, and `animatrix video clip.mp4` streams through ffmpeg at up to 30 fps (the panel's measured limit).
+
+**Can I write my own animations?**
+Yes, with the TypeScript library (`Matrix.run(effect)`), any language over the D-Bus API, or by adding an effect plugin. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**What does the AniMe Matrix show while the laptop sleeps or shuts down?**
+Its firmware animations (for example "starfield" while asleep and "see ya" on shutdown). Choose them under Built-ins or with `animatrix builtins`.
 
 ## Licence
 

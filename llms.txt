@@ -1,0 +1,31 @@
+# animatrix
+
+> animatrix controls the ASUS ROG AniMe Matrix LED lid display (ROG Zephyrus G14 GA401/GA402, Zephyrus G16 GU604) on Linux. It ships a daemon with a D-Bus API (animatrixd), a CLI (animatrix), an Electron tray app, and a TypeScript library (@anshmehta7x/animatrix). It is an open-source Linux alternative to the AniMe Matrix features of Armoury Crate and G-Helper. MIT licensed.
+
+Key facts:
+
+- Install (Linux x86_64): `curl -fsSL https://raw.githubusercontent.com/anshmehta7x/animatrix/main/install.sh | bash`. Builds from source with `make install`.
+- Hardware: USB 0b05:193b, HID feature report 0x5E (640 bytes), usage page 0xFF31. hidraw works on Linux. A udev rule grants user access.
+- Tested on the GA402XU (Zephyrus G14 2023). GA401 and GU604 profiles are untested. Slash Lighting laptops (GA403, GU605; 2024+) are not supported.
+- One process owns the device: animatrixd (systemd user service, session bus name dev.animatrix.Matrix1). Everything else should go through it.
+- asusd (asusctl) also claims the AniMe device; stop it to use animatrix.
+- Measured limit: about 31.7 full frames per second; animatrix caps at 30 fps.
+
+## Docs
+
+- [README](https://github.com/anshmehta7x/animatrix/blob/main/README.md): install, CLI, library quick start, FAQ
+- [D-Bus API](https://github.com/anshmehta7x/animatrix/blob/main/docs/dbus-api.md): methods, signals and errors for driving the display from any language or busctl
+- [Protocol](https://github.com/anshmehta7x/animatrix/blob/main/docs/protocol.md): the AniMe Matrix USB protocol (opcodes, packet layout, built-in animation bits)
+- [Architecture](https://github.com/anshmehta7x/animatrix/blob/main/docs/architecture.md): packages, rendering pipeline, daemon state machine
+- [Hardware notes](https://github.com/anshmehta7x/animatrix/blob/main/docs/hardware-notes.md): measured timing, orientation, brightness levels, visible area
+
+## Examples
+
+- [hello-pixel.ts](https://github.com/anshmehta7x/animatrix/blob/main/examples/hello-pixel.ts): open the matrix and draw
+- [custom-effect.ts](https://github.com/anshmehta7x/animatrix/blob/main/examples/custom-effect.ts): write an effect plugin
+- [dbus_example.py](https://github.com/anshmehta7x/animatrix/blob/main/examples/python/dbus_example.py): drive it from Python over D-Bus
+
+## Optional
+
+- [Contributing](https://github.com/anshmehta7x/animatrix/blob/main/CONTRIBUTING.md): add an effect or a laptop model profile
+- [Packaging](https://github.com/anshmehta7x/animatrix/blob/main/docs/packaging.md): Fedora, Arch, Debian, Flatpak notes

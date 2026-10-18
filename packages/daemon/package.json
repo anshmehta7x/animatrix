@@ -4,6 +4,34 @@
   "private": true,
   "description": "animatrixd: the AniMe Matrix daemon (device owner, scheduler, power policy, D-Bus API)",
   "license": "MIT",
+  "author": "Ansh Mehta (https://github.com/anshmehta7x)",
+  "homepage": "https://github.com/anshmehta7x/animatrix#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anshmehta7x/animatrix.git",
+    "directory": "packages/daemon"
+  },
+  "bugs": {
+    "url": "https://github.com/anshmehta7x/animatrix/issues"
+  },
+  "keywords": [
+    "asus",
+    "rog",
+    "anime-matrix",
+    "animematrix",
+    "zephyrus",
+    "g14",
+    "g16",
+    "ga402",
+    "ga401",
+    "gu604",
+    "led-matrix",
+    "linux",
+    "hidraw",
+    "daemon",
+    "dbus",
+    "systemd"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

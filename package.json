@@ -29,5 +29,20 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.5"
-  }
+  },
+  "keywords": [
+    "asus",
+    "rog",
+    "anime-matrix",
+    "animematrix",
+    "zephyrus",
+    "g14",
+    "g16",
+    "ga402",
+    "ga401",
+    "gu604",
+    "led-matrix",
+    "linux",
+    "hidraw"
+  ]
 }

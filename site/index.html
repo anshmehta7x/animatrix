@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>animatrix: AniMe Matrix control for Linux (ROG Zephyrus G14 / G16)</title>
+    <meta
+      name="description"
+      content="Control the ASUS ROG AniMe Matrix LED lid display on Linux. Show images, GIFs, video, a clock, a music visualiser and effects on the Zephyrus G14 and G16. Open-source alternative to Armoury Crate and G-Helper."
+    />
+    <link rel="canonical" href="https://anshmehta7x.github.io/animatrix/" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#000000" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="animatrix: AniMe Matrix control for Linux" />
+    <meta
+      property="og:description"
+      content="Images, GIFs, video, clock, visualiser and effects on the ROG Zephyrus AniMe Matrix, from Linux. Tray app, CLI, daemon and TypeScript library."
+    />
+    <meta property="og:url" content="https://anshmehta7x.github.io/animatrix/" />
+    <meta property="og:image" content="https://anshmehta7x.github.io/animatrix/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://anshmehta7x.github.io/animatrix/og.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "animatrix",
+        "alternateName": "AniMe Matrix control for Linux",
+        "description": "Linux control for the ASUS ROG AniMe Matrix LED lid display on the Zephyrus G14 and G16: images, GIFs, video, clock, music visualiser, effects and firmware animations. Tray app, CLI, D-Bus daemon and TypeScript library.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Linux",
+        "license": "https://opensource.org/licenses/MIT",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "url": "https://anshmehta7x.github.io/animatrix/",
+        "codeRepository": "https://github.com/anshmehta7x/animatrix",
+        "downloadUrl": "https://github.com/anshmehta7x/animatrix/releases/latest",
+        "image": "https://anshmehta7x.github.io/animatrix/og.png",
+        "keywords": "AniMe Matrix, ASUS ROG, Zephyrus G14, Zephyrus G16, GA402, GA401, GU604, Linux, LED matrix, asusctl, G-Helper, Armoury Crate"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I control the AniMe Matrix on Linux?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Install animatrix with: curl -fsSL https://raw.githubusercontent.com/anshmehta7x/animatrix/main/install.sh | bash. Then open the animatrix panel or run animatrix image cat.png. It talks to the panel directly over hidraw, so it needs neither Windows, Armoury Crate nor G-Helper."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which laptops have an AniMe Matrix?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The ROG Zephyrus G14 2020/2021 (GA401), the G14 2022/2023 (GA402R, GA402X, GA402N) and the Zephyrus G16 2023 (GU604). 2024 and later models have Slash Lighting instead, which is different hardware."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does animatrix work with asusctl?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Keep using asusctl for fans, keyboard lighting and power profiles. Its daemon asusd also claims the AniMe device, so stop asusd while animatrix runs; animatrix detects it and tells you."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I play a GIF or a video on the AniMe Matrix?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. GIFs play with each frame's own timing, and videos stream through ffmpeg at up to 30 frames per second, the panel's measured limit."
+            }
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #000;
+        --surface: #0a0a0a;
+        --hairline: #262626;
+        --hairline-strong: #333;
+        --text: #ededed;
+        --text-2: #a1a1a1;
+        --text-3: #666;
+        --accent: #00e599;
+        --font: "Geist", system-ui, sans-serif;
+        --mono: "Geist Mono", ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+        text-decoration-color: var(--text-3);
+        text-underline-offset: 3px;
+      }
+      a:hover {
+        text-decoration-color: var(--accent);
+      }
+      :focus-visible {
+        outline: 1px solid var(--accent);
+        outline-offset: 3px;
+      }
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      header.top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+        border-bottom: 1px solid var(--hairline);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        text-decoration: none;
+      }
+      .brand img {
+        width: 24px;
+        height: 24px;
+      }
+      nav.links {
+        display: flex;
+        gap: 22px;
+        font-size: 14px;
+        color: var(--text-2);
+      }
+      nav.links a {
+        text-decoration: none;
+      }
+      nav.links a:hover {
+        color: var(--text);
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: 48px;
+        align-items: center;
+        padding-top: 88px;
+        padding-bottom: 72px;
+      }
+      .hero > div {
+        min-width: 0;
+      }
+      h1 {
+        margin: 0 0 18px;
+        font-size: clamp(36px, 5.2vw, 56px);
+        font-weight: 700;
+        line-height: 1.05;
+        letter-spacing: -0.045em;
+      }
+      .lede {
+        max-width: 34em;
+        margin: 0 0 28px;
+        color: var(--text-2);
+        font-size: 18px;
+      }
+      .install {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 100%;
+        padding: 6px 6px 6px 14px;
+        border: 1px solid var(--hairline-strong);
+        border-radius: 8px;
+        background: var(--surface);
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      .install code {
+        flex: 1 1 auto;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+      }
+      .install code::before {
+        content: "$ ";
+        color: var(--text-3);
+      }
+      .install button {
+        flex: none;
+        height: 30px;
+        padding: 0 12px;
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        background: var(--accent);
+        color: #000;
+        font: 500 13px var(--font);
+        cursor: pointer;
+      }
+      .sub {
+        margin: 12px 0 0;
+        font-size: 13px;
+        color: var(--text-3);
+      }
+      .lid {
+        position: relative;
+        aspect-ratio: 26.6 / 17.3;
+        border: 1px solid var(--hairline-strong);
+        border-radius: 12px;
+        background: radial-gradient(90% 70% at 75% 0%, #0d0d0d, transparent 70%), #000;
+        overflow: hidden;
+      }
+      .lid canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      section {
+        padding: 72px 0;
+        border-top: 1px solid var(--hairline);
+      }
+      h2 {
+        margin: 0 0 28px;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        overflow: hidden;
+        border: 1px solid var(--hairline);
+        border-radius: 12px;
+        background: var(--hairline);
+      }
+      .grid div {
+        padding: 22px;
+        background: var(--bg);
+      }
+      .grid h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .grid p {
+        margin: 0;
+        color: var(--text-2);
+        font-size: 14px;
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 48px;
+        align-items: start;
+      }
+      .shots img {
+        width: 100%;
+        border: 1px solid var(--hairline-strong);
+        border-radius: 12px;
+      }
+      .shots ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .shots li {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--hairline);
+        color: var(--text-2);
+      }
+      .shots li strong {
+        color: var(--text);
+        font-weight: 500;
+      }
+      pre {
+        margin: 0;
+        padding: 18px;
+        overflow-x: auto;
+        border: 1px solid var(--hairline);
+        border-radius: 12px;
+        background: var(--surface);
+        font: 13px/1.7 var(--mono);
+        color: var(--text-2);
+      }
+      pre .c {
+        color: var(--text-3);
+      }
+      details {
+        border-bottom: 1px solid var(--hairline);
+      }
+      summary {
+        padding: 16px 0;
+        font-weight: 500;
+        cursor: pointer;
+        list-style: none;
+      }
+      summary::after {
+        content: "+";
+        float: right;
+        color: var(--text-3);
+      }
+      details[open] summary::after {
+        content: "–";
+      }
+      details p {
+        margin: 0 0 18px;
+        max-width: 46em;
+        color: var(--text-2);
+      }
+      footer {
+        padding: 32px 0 48px;
+        border-top: 1px solid var(--hairline);
+        font-size: 13px;
+        color: var(--text-3);
+      }
+      @media (max-width: 820px) {
+        .hero,
+        .shots {
+          grid-template-columns: 1fr;
+        }
+        .hero {
+          padding-top: 48px;
+          padding-bottom: 48px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        nav.links a:not(:last-child) {
+          display: none;
+        }
+        .shots img {
+          max-width: 300px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="wrap top">
+      <a class="brand" href="./"><img src="icon.svg" alt="" />animatrix</a>
+      <nav class="links">
+        <a href="#features">Features</a>
+        <a href="#library">Library</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/anshmehta7x/animatrix">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="wrap hero">
+        <div>
+          <h1>AniMe Matrix control for Linux</h1>
+          <p class="lede">
+            Put images, GIFs, video, a clock or a music visualiser on the LED lid of your ROG
+            Zephyrus G14 or G16. Open source, made for Linux, no Armoury Crate or G-Helper needed.
+          </p>
+          <div class="install">
+            <code id="cmd"
+              >curl -fsSL https://raw.githubusercontent.com/anshmehta7x/animatrix/main/install.sh |
+              bash</code
+            >
+            <button type="button" id="copy">Copy</button>
+          </div>
+          <p class="sub">
+            Linux x86_64. Installs to ~/.local and asks for sudo once for device access.
+            <a href="https://github.com/anshmehta7x/animatrix#build-from-source"
+              >Build from source</a
+            >
+          </p>
+        </div>
+        <div class="lid" role="img" aria-label="Animated preview of the AniMe Matrix LED lattice">
+          <canvas id="lattice"></canvas>
+        </div>
+      </div>
+
+      <section id="features">
+        <div class="wrap">
+          <h2>Everything the lid can do</h2>
+          <div class="grid">
+            <div>
+              <h3>Images, GIFs and video</h3>
+              <p>
+                Drop a file on the preview, then drag to move and scroll to zoom. GIFs keep their
+                per-frame timing.
+              </p>
+            </div>
+            <div>
+              <h3>Clock and text</h3>
+              <p>
+                Digital, analogue and binary faces, and scrolling text that fits around the panel's
+                cut corner.
+              </p>
+            </div>
+            <div>
+              <h3>Music visualiser</h3>
+              <p>
+                Bars, spectrum, waveform or spectrogram from whatever your speakers play, via
+                PipeWire.
+              </p>
+            </div>
+            <div>
+              <h3>Generative effects</h3>
+              <p>
+                Matrix rain, Game of Life, starfield, plasma, a breathing glow and system stats.
+              </p>
+            </div>
+            <div>
+              <h3>Power aware</h3>
+              <p>
+                Off on battery or with the lid closed, firmware animations while asleep, back on
+                resume.
+              </p>
+            </div>
+            <div>
+              <h3>Firmware built-ins</h3>
+              <p>Pick the boot, awake, sleep and shutdown animations stored in the panel itself.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap shots">
+          <img
+            src="panel-dark.png"
+            width="400"
+            height="600"
+            alt="The animatrix tray panel with a live preview of the LED lattice showing a clock"
+            loading="lazy"
+          />
+          <ul>
+            <li>
+              <strong>A compact tray panel</strong> with a live preview of the real staggered LED
+              lattice.
+            </li>
+            <li>
+              <strong>A command-line tool</strong> for scripts and shortcuts:
+              <code>animatrix gif loop.gif</code>.
+            </li>
+            <li>
+              <strong>A small daemon</strong> that owns the device and exposes a D-Bus API for any
+              language.
+            </li>
+            <li>
+              <strong>Scenes and a playlist</strong> to save setups and rotate between them, plus
+              night dimming.
+            </li>
+            <li>
+              <strong>Tested on the Zephyrus G14 GA402XU.</strong> GA401 and GU604 profiles
+              included.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="library">
+        <div class="wrap">
+          <h2>Script it</h2>
+          <pre><span class="c">// TypeScript</span>
+import { Matrix } from "@anshmehta7x/animatrix";
+
+const m = await Matrix.open();
+await m.showImage("cat.png", { fit: "contain" });
+await m.draw((c) => { c.clear(); c.text(30, 4, "hi"); });
+await m.close();
+
+<span class="c"># or from any language over D-Bus</span>
+busctl --user call dev.animatrix.Matrix1 /dev/animatrix/Matrix1 \
+  dev.animatrix.Matrix1 Play ss clock '{"face":"analogue"}'</pre>
+        </div>
+      </section>
+
+      <section id="faq">
+        <div class="wrap">
+          <h2>Questions</h2>
+          <details>
+            <summary>How do I control the AniMe Matrix on Linux?</summary>
+            <p>
+              Run the installer above, then open the animatrix panel or use the
+              <code>animatrix</code> command. It talks to the panel directly over hidraw, so it
+              needs neither Windows, Armoury Crate nor G-Helper.
+            </p>
+          </details>
+          <details>
+            <summary>Which laptops have an AniMe Matrix?</summary>
+            <p>
+              The ROG Zephyrus G14 2020/2021 (GA401), the G14 2022/2023 (GA402R, GA402X, GA402N) and
+              the Zephyrus G16 2023 (GU604). Models from 2024 on have Slash Lighting instead, which
+              is different hardware and not supported.
+            </p>
+          </details>
+          <details>
+            <summary>Does it work with asusctl?</summary>
+            <p>
+              Keep asusctl for fans, keyboard lighting and power profiles. Its daemon, asusd, also
+              claims the AniMe device, so stop asusd while animatrix runs. animatrix detects it and
+              tells you.
+            </p>
+          </details>
+          <details>
+            <summary>Can I play a GIF or a video on the lid?</summary>
+            <p>
+              Yes. GIFs play with each frame's own timing, and videos stream through ffmpeg at up to
+              30 frames per second, the panel's measured limit.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      MIT licensed. Not affiliated with ASUS. AniMe Matrix, ROG and Zephyrus are trademarks of
+      ASUSTeK Computer Inc.
+      <a href="https://github.com/anshmehta7x/animatrix">Source on GitHub</a>
+    </footer>
+
+    <script>
+      // Copy button for the install command.
+      document.getElementById("copy").addEventListener("click", async (e) => {
+        await navigator.clipboard.writeText(document.getElementById("cmd").textContent.trim());
+        e.target.textContent = "Copied";
+        setTimeout(() => (e.target.textContent = "Copy"), 1500);
+      });
+
+      // The GA402 lattice: 61 staggered rows of 34 LEDs with the bottom-left corner cut.
+      const canvas = document.getElementById("lattice");
+      const ctx = canvas.getContext("2d");
+      const leds = [];
+      for (let y = 0; y < 61; y++) {
+        const first = Math.ceil(Math.max(0, y - 11) / 2);
+        for (let x = first; x < 34; x++) leds.push([x + (y % 2) * 0.5, y]);
+      }
+      const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function draw(t) {
+        const dpr = devicePixelRatio || 1;
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        if (canvas.width !== Math.round(w * dpr)) canvas.width = Math.round(w * dpr);
+        if (canvas.height !== Math.round(h * dpr)) canvas.height = Math.round(h * dpr);
+        const sx = (w * dpr) / 35.5;
+        const sy = (h * dpr) / 62;
+        const r = Math.min(sx, sy * 2) * 0.2;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const [x, y] of leds) {
+          const v = Math.sin(x * 0.42 - y * 0.16 - t / 600) * 0.5 + 0.5;
+          const a = v > 0.55 ? 0.3 + v * 0.7 : 0.07;
+          ctx.globalAlpha = a;
+          ctx.fillStyle = "#fff";
+          ctx.beginPath();
+          ctx.arc((x + 1) * sx, (y + 0.7) * sy, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (!still) requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    </script>
+  </body>
+</html>

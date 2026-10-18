@@ -4,6 +4,33 @@
   "private": true,
   "description": "Drive the ASUS ROG AniMe Matrix LED lid display from Node.js",
   "license": "MIT",
+  "author": "Ansh Mehta (https://github.com/anshmehta7x)",
+  "homepage": "https://github.com/anshmehta7x/animatrix#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anshmehta7x/animatrix.git",
+    "directory": "packages/animatrix"
+  },
+  "bugs": {
+    "url": "https://github.com/anshmehta7x/animatrix/issues"
+  },
+  "keywords": [
+    "asus",
+    "rog",
+    "anime-matrix",
+    "animematrix",
+    "zephyrus",
+    "g14",
+    "g16",
+    "ga402",
+    "ga401",
+    "gu604",
+    "led-matrix",
+    "linux",
+    "hidraw",
+    "dbus",
+    "library"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

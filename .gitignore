@@ -7,3 +7,4 @@ coverage/
 docs/api/
 .vite/
 dist/
+_site/

@@ -4,6 +4,33 @@
   "private": true,
   "description": "Hardware-free core for the AniMe Matrix: model profiles, geometry, canvas, mapping, packet encoding",
   "license": "MIT",
+  "author": "Ansh Mehta (https://github.com/anshmehta7x)",
+  "homepage": "https://github.com/anshmehta7x/animatrix#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anshmehta7x/animatrix.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/anshmehta7x/animatrix/issues"
+  },
+  "keywords": [
+    "asus",
+    "rog",
+    "anime-matrix",
+    "animematrix",
+    "zephyrus",
+    "g14",
+    "g16",
+    "ga402",
+    "ga401",
+    "gu604",
+    "led-matrix",
+    "linux",
+    "hidraw",
+    "protocol",
+    "geometry"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
