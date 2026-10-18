@@ -22,6 +22,7 @@ import {
   type MappingMode,
   type ModelProfile,
 } from "@anshmehta7x/animatrix-core";
+import type { Effect } from "@anshmehta7x/animatrix-effects";
 import type { Backend } from "./backend.js";
 import { DaemonBackend } from "./daemon-backend.js";
 import { DaemonClient, isDaemonRunning } from "./daemon-client.js";
@@ -179,6 +180,15 @@ export class Matrix {
   }
 
   /**
+   * Run your own effect (any object implementing {@link Effect}). It renders in this process;
+   * with the daemon running, frames stream through it. Keep the process alive (see
+   * {@link Matrix.wait}) for as long as the effect should run.
+   */
+  run(effect: Effect, params: Record<string, unknown> = {}): Promise<void> {
+    return this.backend.runEffect(effect, params);
+  }
+
+  /**
    * Draw with a callback on a canvas sized for the chosen mapping, then show it once.
    *
    * ```ts
@@ -218,7 +228,10 @@ export class Matrix {
     return this.backend.stop();
   }
 
-  /** In direct mode, resolve when the current non-looping animation finishes. */
+  /**
+   * Resolve when the effect running in this process finishes (non-looping media) or is stopped.
+   * Effects running inside animatrixd keep going after your script exits.
+   */
   wait(): Promise<void> {
     return this.backend.wait();
   }

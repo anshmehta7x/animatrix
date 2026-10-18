@@ -1,4 +1,5 @@
 /** The two ways {@link Matrix} can reach the panel. */
+import type { Effect } from "@anshmehta7x/animatrix-effects";
 import type {
   BuiltinSelection,
   HardwareBrightness,
@@ -15,8 +16,10 @@ export interface Backend {
   showFrame(frame: Uint8Array): Promise<void>;
   showTestPattern(): Promise<void>;
   play(effect: string, params: Record<string, unknown>): Promise<void>;
+  /** Run an effect object in this process (custom effects). */
+  runEffect(effect: Effect, params: Record<string, unknown>): Promise<void>;
   stop(): Promise<void>;
-  /** Resolves when the current non-looping effect ends (direct mode only; daemon resolves now). */
+  /** Resolves when the current locally run effect ends or is stopped. */
   wait(): Promise<void>;
   close(): Promise<void>;
 }

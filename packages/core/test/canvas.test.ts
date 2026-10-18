@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { Canvas, FONTS, applyTone, scaleFrame, toneLut } from "../src/index.js";
+import {
+  Canvas,
+  FONTS,
+  InvalidArgumentError,
+  applyTone,
+  scaleFrame,
+  toneLut,
+} from "../src/index.js";
 import { RAW_FONTS } from "../src/fonts/index.js";
 
 describe("Canvas", () => {
@@ -12,8 +19,8 @@ describe("Canvas", () => {
   });
 
   it("rejects invalid sizes", () => {
-    expect(() => new Canvas(0, 5)).toThrow(RangeError);
-    expect(() => new Canvas(2.5, 5)).toThrow(RangeError);
+    expect(() => new Canvas(0, 5)).toThrow(InvalidArgumentError);
+    expect(() => new Canvas(2.5, 5)).toThrow(InvalidArgumentError);
   });
 
   it("draws lines end to end", () => {

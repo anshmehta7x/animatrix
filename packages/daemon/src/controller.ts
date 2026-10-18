@@ -57,6 +57,7 @@ export class Controller extends EventEmitter<ControllerEvents> {
   private retry: NodeJS.Timeout | null = null;
   private applying: Promise<void> = Promise.resolve();
   private stopped = false;
+  private lastLogged: string | null = null;
 
   constructor(private readonly deps: ControllerDeps) {
     super();
@@ -79,24 +80,33 @@ export class Controller extends EventEmitter<ControllerEvents> {
 
   private async connect(): Promise<void> {
     if (this.stopped || this.device) return;
+    let dev: AnimeDevice | null = null;
     try {
-      this.device = await this.deps.openDevice();
+      dev = await this.deps.openDevice();
+      await dev.setHardwareBrightness(this.config.device.hardwareBrightness);
+      this.device = dev;
       this.error = null;
+      this.lastLogged = null;
       this.deps.log.info("device connected", {
-        model: this.device.profile.id,
-        transport: this.device.transport.kind,
+        model: dev.profile.id,
+        transport: dev.transport.kind,
       });
-      await this.device.setHardwareBrightness(this.config.device.hardwareBrightness);
       await this.reapply();
     } catch (err) {
+      await dev?.close().catch(() => undefined);
+      this.device = null;
       const e = toAnimatrixError(
         err,
         (c) => new AnimatrixError("TRANSPORT_FAILED", "open failed", null, c),
       );
       this.error = e.hint ? `${e.message}. ${e.hint}` : e.message;
-      this.deps.log.warn("device unavailable, retrying", { code: e.code, message: e.message });
-      this.device = null;
-      this.scheduleRetry();
+      if (this.error !== this.lastLogged) {
+        this.deps.log.warn("device unavailable", { code: e.code, message: e.message });
+        this.lastLogged = this.error;
+      }
+      // An unsupported model will not fix itself; everything else (missing node, permissions
+      // not yet applied, device mid-resume) is retried.
+      if (e.code !== "UNSUPPORTED_MODEL") this.scheduleRetry();
     }
     this.emitState();
   }
@@ -225,7 +235,13 @@ export class Controller extends EventEmitter<ControllerEvents> {
       if (frame.length !== slots) {
         throw new InvalidArgumentError(`frame must be ${slots} bytes, got ${frame.length}`);
       }
+      const wasFrame = this.content.kind === "frame";
       this.content = { kind: "frame", frame: frame.slice() };
+      if (wasFrame && !this.runner && this.device) {
+        // Streaming clients send many frames: write directly, no state signal per frame.
+        await this.sink(this.content.frame).catch((e) => this.lostDevice(e));
+        return;
+      }
       await this.reapply().catch((e) => this.lostDevice(e));
       this.emitState();
     });

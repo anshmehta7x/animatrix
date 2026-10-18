@@ -30,7 +30,19 @@ export function Preview({
   const profile = useMemo(() => profileById(snap?.info?.model ?? "GA402"), [snap?.info?.model]);
   const lattice = useMemo(() => (profile ? latticeFor(profile) : null), [profile]);
   const height = lattice ? Math.round((WIDTH * lattice.heightCm) / lattice.widthCm) : 240;
-  const lit = Boolean(state?.connected && !state.gate);
+  const overlay = !snap?.daemon
+    ? null
+    : !state?.connected
+      ? "Not connected"
+      : state.gate
+        ? "Display off"
+        : state.content === "builtins"
+          ? "Firmware animation playing"
+          : state.content === "idle"
+            ? "Nothing playing"
+            : null;
+  // The firmware draws built-ins itself, so there is no frame to mirror then.
+  const lit = Boolean(state?.connected && !state.gate && state.content !== "builtins");
   const level = state?.hardwareBrightness ?? 3;
 
   useEffect(() => {
@@ -135,6 +147,7 @@ export function Preview({
       role="img"
     >
       <canvas ref={canvas} className={styles.canvas} />
+      {overlay && !dragging && <div className={styles.overlay}>{overlay}</div>}
       {dragging && <div className={styles.dropHint}>Drop to show on the lid</div>}
     </div>
   );

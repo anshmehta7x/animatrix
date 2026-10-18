@@ -6,6 +6,20 @@ import dbus from "dbus-next";
 
 interface DbusProxy {
   NameHasOwner(name: string): Promise<boolean>;
+  on(event: "NameOwnerChanged", fn: (name: string, old: string, owner: string) => void): void;
+}
+
+const SNI_WATCHER = "org.kde.StatusNotifierWatcher";
+
+/** Call `fn` whenever a StatusNotifier host appears or disappears (keeps a bus connection). */
+export async function watchTrayHost(fn: (present: boolean) => void): Promise<void> {
+  const bus = dbus.sessionBus();
+  bus.on("error", () => undefined);
+  const obj = await bus.getProxyObject("org.freedesktop.DBus", "/org/freedesktop/DBus");
+  const iface = obj.getInterface("org.freedesktop.DBus") as unknown as DbusProxy;
+  iface.on("NameOwnerChanged", (name, _old, owner) => {
+    if (name === SNI_WATCHER) fn(Boolean(owner));
+  });
 }
 
 /** `wayland`, `x11` or `unknown` from XDG_SESSION_TYPE / WAYLAND_DISPLAY. */
@@ -26,7 +40,7 @@ export async function hasTrayHost(): Promise<boolean> {
   try {
     const obj = await bus.getProxyObject("org.freedesktop.DBus", "/org/freedesktop/DBus");
     const iface = obj.getInterface("org.freedesktop.DBus") as unknown as DbusProxy;
-    return await iface.NameHasOwner("org.kde.StatusNotifierWatcher");
+    return await iface.NameHasOwner(SNI_WATCHER);
   } catch {
     return false;
   } finally {

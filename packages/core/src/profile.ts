@@ -4,6 +4,7 @@
  *
  * @packageDocumentation
  */
+import { InvalidArgumentError } from "./errors.js";
 
 /** One physical row of the staggered LED lattice. */
 export interface RowSpec {
@@ -87,7 +88,7 @@ export function rowsFrom(
   pitch: readonly number[] = count,
 ): RowSpec[] {
   if (first.length !== count.length || pitch.length !== count.length) {
-    throw new RangeError("row table arrays differ in length");
+    throw new InvalidArgumentError("row table arrays differ in length");
   }
   return first.map((f, i) => ({ first: f, count: count[i]!, pitch: pitch[i]! }));
 }

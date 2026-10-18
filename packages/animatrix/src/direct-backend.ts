@@ -5,21 +5,21 @@ import {
   type BuiltinSelection,
   type HardwareBrightness,
 } from "@anshmehta7x/animatrix-core";
-import { EffectRegistry, Runner, Services } from "@anshmehta7x/animatrix-effects";
+import { EffectRegistry, type Effect } from "@anshmehta7x/animatrix-effects";
 import type { Backend } from "./backend.js";
 import type { AnimeDevice } from "./device.js";
+import { LocalRunner } from "./local-runner.js";
 
 export class DirectBackend implements Backend {
   readonly via = "direct";
-  private runner: Runner | null = null;
-  private readonly services = new Services();
-  private done: Promise<void> = Promise.resolve();
-  private resolveDone: (() => void) | null = null;
+  private readonly local: LocalRunner;
 
   constructor(
     private readonly device: AnimeDevice,
     private readonly registry = new EffectRegistry(),
-  ) {}
+  ) {
+    this.local = new LocalRunner(device.profile);
+  }
 
   get profile(): AnimeDevice["profile"] {
     return this.device.profile;
@@ -36,7 +36,7 @@ export class DirectBackend implements Backend {
   async setBuiltins(sel: Partial<BuiltinSelection>, enable: boolean): Promise<void> {
     const merged = { ...this.device.builtinSelection, ...sel };
     if (enable) {
-      await this.stop();
+      await this.local.stop();
       await this.device.useBuiltins(merged);
     } else {
       await this.device.setBuiltinSelection(merged);
@@ -44,7 +44,7 @@ export class DirectBackend implements Backend {
   }
 
   async showFrame(frame: Uint8Array): Promise<void> {
-    await this.stop();
+    await this.local.stop();
     await this.device.writeFrame(frame);
   }
 
@@ -52,36 +52,26 @@ export class DirectBackend implements Backend {
     return this.showFrame(testPatternFrame(this.profile));
   }
 
-  async play(effectId: string, params: Record<string, unknown>): Promise<void> {
+  play(effectId: string, params: Record<string, unknown>): Promise<void> {
     const effect = this.registry.get(effectId);
-    if (!effect) throw new InvalidArgumentError(`unknown effect "${effectId}"`);
-    await this.stop();
-    this.done = new Promise((r) => (this.resolveDone = r));
-    this.runner = await Runner.start({
-      profile: this.profile,
-      effect,
-      params,
-      services: this.services,
-      sink: (frame) => this.device.writeFrame(frame),
-      onDone: () => this.resolveDone?.(),
-      onError: () => this.resolveDone?.(),
-    });
+    if (!effect) return Promise.reject(new InvalidArgumentError(`unknown effect "${effectId}"`));
+    return this.runEffect(effect, params);
   }
 
-  async stop(): Promise<void> {
-    const r = this.runner;
-    this.runner = null;
-    await r?.stop();
-    this.resolveDone?.();
+  runEffect(effect: Effect, params: Record<string, unknown>): Promise<void> {
+    return this.local.start(effect, params, (frame) => this.device.writeFrame(frame));
+  }
+
+  stop(): Promise<void> {
+    return this.local.stop();
   }
 
   wait(): Promise<void> {
-    return this.done;
+    return this.local.wait();
   }
 
   async close(): Promise<void> {
-    await this.stop();
-    this.services.dispose();
+    await this.local.dispose();
     await this.device.close();
   }
 }

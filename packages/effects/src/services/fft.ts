@@ -1,9 +1,10 @@
-/** Minimal in-place radix-2 FFT and spectrum helpers (no dependencies). */
+/** Minimal in-place radix-2 FFT and spectrum helpers. */
+import { InvalidArgumentError } from "@anshmehta7x/animatrix-core";
 
 /** In-place complex FFT. `re`/`im` length must be a power of two. */
 export function fft(re: Float32Array, im: Float32Array): void {
   const n = re.length;
-  if (n & (n - 1)) throw new RangeError("FFT size must be a power of two");
+  if (n & (n - 1)) throw new InvalidArgumentError("FFT size must be a power of two");
   for (let i = 1, j = 0; i < n; i++) {
     let bit = n >> 1;
     for (; j & bit; bit >>= 1) j ^= bit;

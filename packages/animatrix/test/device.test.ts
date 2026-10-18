@@ -128,3 +128,31 @@ describe("Matrix (direct, mock)", () => {
     expect(mock.summary(3).slice(-2)).toEqual(["5E C4 01", "5E C5 0F"]);
   });
 });
+
+describe("Matrix.run (custom effect)", () => {
+  it("runs a user effect in-process and stops cleanly", async () => {
+    const mock = new MockTransport();
+    const m = Matrix.fromDevice(await AnimeDevice.open({ model: "GA402", transport: mock }));
+    let frames = 0;
+    await m.run({
+      id: "mine",
+      name: "Mine",
+      description: "",
+      category: "generative",
+      fps: 30,
+      params: {},
+      create: () => ({
+        render(t, c) {
+          frames++;
+          c.clear();
+          c.pixel(t % c.width, 3, 255);
+          return { done: frames >= 3 };
+        },
+      }),
+    });
+    await m.wait();
+    expect(frames).toBe(3);
+    expect(mock.packets.filter((p) => p[1] === 0xc0 && p[2] === 0x03).length).toBe(3);
+    await m.close();
+  });
+});

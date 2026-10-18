@@ -16,7 +16,13 @@ import {
   type Tray,
 } from "electron";
 import { DaemonLink } from "./daemon.js";
-import { hasTrayHost, isAutostartEnabled, sessionType, setAutostart } from "./environment.js";
+import {
+  hasTrayHost,
+  isAutostartEnabled,
+  sessionType,
+  setAutostart,
+  watchTrayHost,
+} from "./environment.js";
 import { createTray } from "./tray.js";
 import { createPanel, placeNear, rendererPath } from "./window.js";
 import {
@@ -125,9 +131,7 @@ const handlers: {
     return res.canceled ? null : (res.filePaths[0] ?? null);
   },
   setAutostart: async (on) => {
-    const exec =
-      process.env.APPIMAGE ??
-      (app.isPackaged ? process.execPath : `${process.execPath} ${app.getAppPath()}`);
+    const exec = process.env.ANIMATRIX_TRAY_BIN ?? `"${process.execPath}" "${app.getAppPath()}"`;
     await setAutostart(on, exec);
     env = { ...env, autostart: on };
     panel?.webContents.send(IPC.snapshot, snapshot());
@@ -193,20 +197,29 @@ async function boot(): Promise<void> {
   link.on("state", (s) => panel?.webContents.send(IPC.state, s));
   link.on("preview", (f) => panel?.isVisible() && panel.webContents.send(IPC.preview, f));
 
-  if (trayHost) {
+  // Always create the tray (harmless without a host) and recreate it when a StatusNotifier
+  // host appears later, e.g. when the AppIndicator extension loads after us at login.
+  const makeTray = (): void => {
+    tray?.destroy();
     tray = createTray(join(assets, "tray.png"), link, {
       togglePanel: () => togglePanel(),
       quit: () => handlers.quit(),
       run: (fn) => void fn().catch(() => undefined),
     });
-  }
+  };
+  makeTray();
+  void watchTrayHost((present) => {
+    env = { ...env, trayHost: present, showTrayHint: !present && !link.config?.ui.trayHintShown };
+    if (present) makeTray();
+    send();
+  });
   try {
     globalShortcut.register(SHORTCUT, () => togglePanel());
   } catch {
     // Not available on this compositor; the --toggle flag covers it.
   }
-  const hidden = process.argv.includes("--hidden");
-  if (!trayHost || !hidden) panel.once("ready-to-show", () => togglePanel(true));
+  // --hidden (autostart) never pops the panel up; a manual launch always shows it.
+  if (!process.argv.includes("--hidden")) panel.once("ready-to-show", () => togglePanel(true));
 
   // Development aid: ANIMATRIX_SCREENSHOT=/path.png captures the panel and exits.
   const shot = process.env.ANIMATRIX_SCREENSHOT;

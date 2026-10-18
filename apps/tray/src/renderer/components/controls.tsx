@@ -1,5 +1,5 @@
 /** Small, quiet form controls in the panel's style. */
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import styles from "./controls.module.css";
 
 export function Row({
@@ -54,6 +54,7 @@ export function Toggle({
   );
 }
 
+/** A range slider. Updates instantly on screen; `onChange` is debounced (150 ms). */
 export function Slider(props: {
   value: number;
   min: number;
@@ -64,7 +65,28 @@ export function Slider(props: {
   onChange(v: number): void;
 }): ReactNode {
   const { value, min, max, step = 1, label, format, onChange } = props;
-  const pct = ((value - min) / (max - min || 1)) * 100;
+  const [local, setLocal] = useState(value);
+  const timer = useRef<number | null>(null);
+  const latest = useRef(onChange);
+  latest.current = onChange;
+  useEffect(() => {
+    if (timer.current === null) setLocal(value);
+  }, [value]);
+  useEffect(
+    () => () => {
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    },
+    [],
+  );
+  const set = (v: number): void => {
+    setLocal(v);
+    if (timer.current !== null) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => {
+      timer.current = null;
+      latest.current(v);
+    }, 150);
+  };
+  const pct = ((local - min) / (max - min || 1)) * 100;
   return (
     <div className={styles.sliderWrap}>
       <input
@@ -73,12 +95,12 @@ export function Slider(props: {
         min={min}
         max={max}
         step={step}
-        value={value}
+        value={local}
         aria-label={label}
         style={{ ["--fill" as string]: `${pct}%` }}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => set(Number(e.target.value))}
       />
-      {format && <span className={styles.sliderValue}>{format(value)}</span>}
+      {format && <span className={styles.sliderValue}>{format(local)}</span>}
     </div>
   );
 }

@@ -36,3 +36,14 @@
   opacity: 0.85;
   pointer-events: none;
 }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--text-sm);
+  font-weight: 550;
+  color: rgba(255, 255, 255, 0.72);
+  pointer-events: none;
+}

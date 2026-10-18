@@ -2,6 +2,7 @@
  * A plain greyscale raster that effects draw into. Values are 0 (off) to 255 (full). Effects never
  * touch LED addresses; a {@link Mapper} turns a canvas into a frame.
  */
+import { InvalidArgumentError } from "./errors.js";
 import { fontById, type PixelFont } from "./fonts/index.js";
 
 /** Options for {@link Canvas.text}. */
@@ -27,7 +28,7 @@ export class Canvas {
 
   constructor(width: number, height: number, data?: Uint8ClampedArray) {
     if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0) {
-      throw new RangeError(`invalid canvas size ${width}×${height}`);
+      throw new InvalidArgumentError(`invalid canvas size ${width}×${height}`);
     }
     this.width = width;
     this.height = height;
