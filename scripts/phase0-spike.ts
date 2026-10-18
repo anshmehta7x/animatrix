@@ -107,7 +107,8 @@ if (mode === "pattern") {
     per.push(Number(process.hrtime.bigint() - a) / 1e6);
     frames.push(Number(process.hrtime.bigint() - t0) / 1e6);
   }
-  const q = (arr: number[], p: number): number => [...arr].sort((x, y) => x - y)[Math.floor(p * (arr.length - 1))]!;
+  const q = (arr: number[], p: number): number =>
+    [...arr].sort((x, y) => x - y)[Math.floor(p * (arr.length - 1))]!;
   const mean = frames.reduce((s, v) => s + v, 0) / frames.length;
   console.log(
     JSON.stringify({

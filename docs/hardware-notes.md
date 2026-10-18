@@ -5,22 +5,22 @@ background lives in [protocol.md](protocol.md) and the research write-up it link
 
 ## Machine
 
-| Item | Value |
-|---|---|
-| Model (DMI `product_name`) | `ROG Zephyrus G14 GA402XU_GA402XU` |
-| Kernel / distro | 7.2.11-200.fc44.x86_64, Fedora 44, GNOME Wayland |
-| Device | `0b05:193b` "ITE Device(8295)", bcdDevice 0.09, USB Full Speed (12 Mbit/s) |
-| Kernel driver | `hid-generic`, single interface 0 (class HID, boot subclass, protocol "keyboard") |
-| hidraw node | `/dev/hidraw1` on this boot. **Don't rely on the number**: the udev rule and the library match by VID:PID plus usage page |
+| Item                       | Value                                                                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Model (DMI `product_name`) | `ROG Zephyrus G14 GA402XU_GA402XU`                                                                                        |
+| Kernel / distro            | 7.2.11-200.fc44.x86_64, Fedora 44, GNOME Wayland                                                                          |
+| Device                     | `0b05:193b` "ITE Device(8295)", bcdDevice 0.09, USB Full Speed (12 Mbit/s)                                                |
+| Kernel driver              | `hid-generic`, single interface 0 (class HID, boot subclass, protocol "keyboard")                                         |
+| hidraw node                | `/dev/hidraw1` on this boot. **Don't rely on the number**: the udev rule and the library match by VID:PID plus usage page |
 
 ## Report descriptor — verified 2026-10-18
 
 `/sys/class/hidraw/hidraw1/device/report_descriptor` (66 bytes) decodes to two top-level collections:
 
-| Collection | Report ID | Reports |
-|---|---|---|
-| Usage page `0xFF89`, usage `0x10` | `0xA5` | Feature, 16 bytes |
-| Usage page `0xFF31`, usage `0x80` | `0x5E` | Input, 5 bytes; **Feature, 639 bytes (`0x027F`) + ID = 640** |
+| Collection                        | Report ID | Reports                                                      |
+| --------------------------------- | --------- | ------------------------------------------------------------ |
+| Usage page `0xFF89`, usage `0x10` | `0xA5`    | Feature, 16 bytes                                            |
+| Usage page `0xFF31`, usage `0x80` | `0x5E`    | Input, 5 bytes; **Feature, 639 bytes (`0x027F`) + ID = 640** |
 
 This matches the Armoury Crate HAL's selection rule (FF31/0080, report `0x5E`, 640 bytes) and the
 reconstructed descriptor in asusctl's simulator. The `0xA5` report and the `0x5E` input report are
@@ -61,11 +61,11 @@ Seen from behind the lid (lid open, standing behind the laptop):
 - odd rows are shifted half a pitch to the right
 - the diagonal cut is at the bottom-left
 
-| Check | Expected (default) | Observed |
-|---|---|---|
-| Bright block corner (row 0 / col 0) | top-left | _pending_ |
-| "F" reads | normally | _pending_ |
-| Diagonal cut | bottom-left | _pending_ |
+| Check                               | Expected (default) | Observed  |
+| ----------------------------------- | ------------------ | --------- |
+| Bright block corner (row 0 / col 0) | top-left           | _pending_ |
+| "F" reads                           | normally           | _pending_ |
+| Diagonal cut                        | bottom-left        | _pending_ |
 
 If the observation differs, change `orientation` in `packages/core/src/profiles/ga402.ts`
 (`flipX` / `flipY`). The mapping, the preview and every effect follow from that one setting.
@@ -75,11 +75,11 @@ If the observation differs, change `orientation` in `packages/core/src/profiles/
 The benchmark sent 200 full frames (3 × 640-byte panes + flush = 4 feature reports), each changing
 one LED, twice:
 
-| Metric | Run 1 | Run 2 |
-|---|---|---|
+| Metric                     | Run 1                   | Run 2                   |
+| -------------------------- | ----------------------- | ----------------------- |
 | per report p50 / p95 / max | 7.98 / 10.09 / 11.05 ms | 8.02 / 10.03 / 11.21 ms |
-| per frame p50 / p95 | 31.4 / 33.0 ms | 31.5 / 32.8 ms |
-| **achieved fps** | **31.7** | **31.7** |
+| per frame p50 / p95        | 31.4 / 33.0 ms          | 31.5 / 32.8 ms          |
+| **achieved fps**           | **31.7**                | **31.7**                |
 
 About 8 ms per report fits a Full-Speed control transfer: 640 bytes is 10 × 64-byte packets, and
 the controller adds some overhead. The device ceiling is therefore **≈31 fps for full frames**,
