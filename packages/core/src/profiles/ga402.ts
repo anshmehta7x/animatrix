@@ -25,11 +25,10 @@ export const GA402: ModelProfile = {
   // AC-RS / Armoury Crate pane layout: 3 × 627, headers 0x0001 / 0x0274 / 0x04E7.
   pane: { length: 627, count: 3 },
   canvas: { width: 68, height: 44 },
-  // UNVERIFIED: G-Helper convention (row 0 top, column 0 left, seen from behind). See
-  // docs/hardware-notes.md; flip here once the lid test is confirmed.
+  // Verified on GA402XU: row 0 top, column 0 left, seen from behind (docs/hardware-notes.md).
   orientation: { flipX: false, flipY: false },
   maxValue: 255,
   // Measured: ~31.7 fps for full frames over hidraw (docs/hardware-notes.md).
   maxFps: 30,
-  notes: "hidraw transport and frame timing verified on GA402XU. Orientation unverified.",
+  notes: "hidraw transport, frame timing, orientation and brightness verified on GA402XU.",
 };

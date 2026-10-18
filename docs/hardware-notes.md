@@ -45,7 +45,7 @@ against the hardware.
 > kernel level, but nobody has yet looked at the lid to confirm that the frame appears. Run
 > `animatrix test-pattern` and fill in the table below.
 
-## Orientation — UNVERIFIED
+## Orientation — verified 2026-10-18
 
 The test pattern (`animatrix test-pattern`, or `node scripts/phase0-spike.ts pattern`) draws three things:
 
@@ -61,11 +61,11 @@ Seen from behind the lid (lid open, standing behind the laptop):
 - odd rows are shifted half a pitch to the right
 - the diagonal cut is at the bottom-left
 
-| Check                               | Expected (default) | Observed  |
-| ----------------------------------- | ------------------ | --------- |
-| Bright block corner (row 0 / col 0) | top-left           | _pending_ |
-| "F" reads                           | normally           | _pending_ |
-| Diagonal cut                        | bottom-left        | _pending_ |
+| Check                               | Expected (default) | Observed    |
+| ----------------------------------- | ------------------ | ----------- |
+| Bright block corner (row 0 / col 0) | top-left           | as expected |
+| "F" reads                           | normally           | _pending_   |
+| Diagonal cut                        | bottom-left        | _pending_   |
 
 If the observation differs, change `orientation` in `packages/core/src/profiles/ga402.ts`
 (`flipX` / `flipY`). The mapping, the preview and every effect follow from that one setting.
@@ -103,7 +103,9 @@ Whether `ASUS Tech.Inc.` is needed after s2idle resume (this machine uses `s2idl
 settled. The daemon re-sends the full setup sequence on every logind `PrepareForSleep(false)`,
 which is safe either way.
 
-## Brightness
+## Brightness — verified
+
+Hardware levels `C0 04` 0–3 change brightness visibly (confirmed by eye).
 
 `node scripts/phase0-spike.ts brightness` steps `C0 04` through 0, 1, 2, 3 with 1.5 s per step.
 All writes are accepted. The visual result is _pending_.
@@ -154,3 +156,14 @@ systemctl --user start animatrixd
    lid did while asleep (`journalctl --user -u animatrixd`).
 4. Log out and back in to activate the AppIndicator extension, then run
    `gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com` and check the tray icon.
+
+## Visual confirmation (2026-10-18)
+
+- The clock (planar mapping, top-right safe area) reads **upright and not mirrored**. That confirms
+  the default orientation: row 0 is at the top and column 0 on the left, seen from behind. No flip
+  is needed.
+- The raw test pattern looks sheared. That is expected: it is drawn in wire coordinates, and odd
+  rows are offset by half a pitch, so straight buffer columns zig-zag on the lid. Use content
+  through the mapping (the clock, text, `animatrix draw`) to judge shapes.
+- Brightness levels 0–3 work.
+- Still unconfirmed: 254 vs 255, the lowest visible level, and suspend/resume.
