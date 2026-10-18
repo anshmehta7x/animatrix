@@ -171,6 +171,6 @@ systemctl --user start animatrixd
   reported 4 as the first visible level, so this panel is one step more sensitive.
 - **Suspend/resume verified:** on sleep the daemon hands over to the firmware animation; on resume
   it re-initialises and the content comes back (journal: "preparing for sleep", "resumed").
-- **Tray icon verified** on GNOME 49 with the AppIndicator extension (the item registers with
+- **Tray icon verified** on GNOME Shell 50.6 with the AppIndicator extension (the item registers with
   StatusNotifierWatcher). The tray only appears while `animatrix-tray` runs, so enable "Open at
   login" in Settings or add the autostart entry.
