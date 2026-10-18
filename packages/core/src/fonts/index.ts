@@ -15,6 +15,8 @@ export interface PixelFont {
   readonly height: number;
   /** Look up a glyph, falling back to upper case, then to "?". */
   glyph(ch: string): Glyph;
+  /** True if the font has a glyph for `ch` (directly or via upper case). */
+  has(ch: string): boolean;
 }
 
 function parseGlyph(src: string): Glyph {
@@ -30,6 +32,7 @@ function buildFont(id: string, height: number, table: Record<string, string>): P
     id,
     height,
     glyph: (ch) => glyphs.get(ch) ?? glyphs.get(ch.toUpperCase()) ?? fallback,
+    has: (ch) => glyphs.has(ch) || glyphs.has(ch.toUpperCase()),
   };
 }
 
@@ -49,3 +52,47 @@ export function fontById(id: string | null | undefined): PixelFont {
 
 /** Raw glyph tables, for tests. @internal */
 export const RAW_FONTS = { "5x7": PIXEL_5X7, "3x5": PIXEL_3X5 } as const;
+
+const PUNCTUATION: Record<string, string> = {
+  "\u2014": "-", // em dash
+  "\u2013": "-", // en dash
+  "\u2012": "-",
+  "\u2212": "-", // minus sign
+  "\u2018": "'",
+  "\u2019": "'",
+  "\u201A": "'",
+  "\u2032": "'",
+  "\u201C": '"',
+  "\u201D": '"',
+  "\u201E": '"',
+  "\u2026": "...",
+  "\u00B7": ".",
+  "\u2022": ".",
+  "\u00A0": " ",
+  "\u2009": " ",
+  "\u00D7": "x",
+  "\u00DF": "ss",
+  "\u00C6": "AE",
+  "\u00E6": "ae",
+  "\u00D8": "O",
+  "\u00F8": "o",
+  "\u0141": "L",
+  "\u0142": "l",
+};
+
+/**
+ * Rewrite text so a pixel font can draw it: typographic punctuation becomes ASCII and accents are
+ * stripped ("Beyoncé — Halo" → "Beyonce - Halo"). Characters with no ASCII equivalent are kept.
+ */
+export function toPixelText(text: string): string {
+  return [...text]
+    .map((ch) => PUNCTUATION[ch] ?? ch)
+    .join("")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** True if every character of `text` (after {@link toPixelText}) exists in the font. */
+export function canDrawWith(font: PixelFont, text: string): boolean {
+  return [...toPixelText(text)].every((ch) => font.has(ch));
+}

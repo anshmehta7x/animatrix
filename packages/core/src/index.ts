@@ -12,5 +12,13 @@ export * from "./tone.js";
 export * from "./packets.js";
 export * from "./builtins.js";
 export * from "./errors.js";
-export { FONTS, FONT_IDS, fontById, type PixelFont, type Glyph } from "./fonts/index.js";
+export {
+  FONTS,
+  FONT_IDS,
+  canDrawWith,
+  fontById,
+  toPixelText,
+  type PixelFont,
+  type Glyph,
+} from "./fonts/index.js";
 export * from "./testpattern.js";

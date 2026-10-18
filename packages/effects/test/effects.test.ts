@@ -291,3 +291,14 @@ describe("Runner.update", () => {
     await r.stop();
   });
 });
+
+describe("TextWriter fallback", () => {
+  it("uses a system font for text the pixel font can't draw", async () => {
+    const { TextWriter } = await import("../src/index.js");
+    const w = new TextWriter({ kind: "pixel", id: "5x7", size: 7 });
+    expect(w.measure("Song — Artist")).toBeGreaterThan(0);
+    expect(w.measure("गाना")).toBeNull(); // not rasterised yet
+    await w.prepare("गाना");
+    expect(w.measure("गाना")).toBeGreaterThan(0);
+  });
+});

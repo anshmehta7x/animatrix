@@ -3,7 +3,7 @@
  * (rasterised asynchronously, then cached). Effects call `prepare()` for strings they will need
  * and `draw()` every frame.
  */
-import { Canvas, FONTS, fontById } from "@anshmehta7x/animatrix-core";
+import { Canvas, FONTS, canDrawWith, fontById } from "@anshmehta7x/animatrix-core";
 import type { GreyImage } from "../media/decode.js";
 import { str, num } from "../params.js";
 import type { ParamValues } from "../types.js";
@@ -34,7 +34,23 @@ export class TextWriter {
   private readonly ready = new Map<string, GreyImage>();
   private readonly pending = new Set<string>();
 
+  private fallbackWriter: TextWriter | null = null;
+
   constructor(readonly font: FontChoice) {}
+
+  /**
+   * For pixel fonts, a system-font writer used for text the pixel font can't draw (non-Latin
+   * titles, emoji). Same pixel height, so layout stays put.
+   */
+  private route(text: string): TextWriter | null {
+    if (this.font.kind !== "pixel" || canDrawWith(fontById(this.font.id), text)) return null;
+    this.fallbackWriter ??= new TextWriter({
+      kind: "system",
+      id: "sans-serif",
+      size: this.height * 0.85,
+    });
+    return this.fallbackWriter;
+  }
 
   /** Integer scale for pixel fonts. */
   private get scale(): number {
@@ -50,6 +66,8 @@ export class TextWriter {
 
   /** Start rasterising `text` (system fonts). Resolves when ready. */
   async prepare(text: string): Promise<void> {
+    const other = this.route(text);
+    if (other) return other.prepare(text);
     if (this.font.kind === "pixel" || this.ready.has(text)) return;
     this.pending.add(text);
     const img = await rasterText(text, this.font.id, this.font.size, this.font.bold ?? false);
@@ -60,6 +78,8 @@ export class TextWriter {
 
   /** Width of `text`, or null if a system-font raster isn't ready yet. */
   measure(text: string): number | null {
+    const other = this.route(text);
+    if (other) return other.measure(text);
     if (this.font.kind === "pixel") {
       return new Canvas(1, 1).measureText(text, { font: this.font.id, scale: this.scale });
     }
@@ -71,6 +91,8 @@ export class TextWriter {
    * raster isn't ready; it then starts preparing it.
    */
   draw(canvas: Canvas, x: number, y: number, text: string, value = 255): boolean {
+    const other = this.route(text);
+    if (other) return other.draw(canvas, x, y, text, value);
     if (this.font.kind === "pixel") {
       canvas.text(x, y, text, { font: this.font.id, scale: this.scale, value });
       return true;

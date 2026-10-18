@@ -3,7 +3,7 @@
  * touch LED addresses; a {@link Mapper} turns a canvas into a frame.
  */
 import { InvalidArgumentError } from "./errors.js";
-import { fontById, type PixelFont } from "./fonts/index.js";
+import { fontById, toPixelText, type PixelFont } from "./fonts/index.js";
 
 /** Options for {@link Canvas.text}. */
 export interface TextOptions {
@@ -124,7 +124,7 @@ export class Canvas {
     const font = resolveFont(opts.font);
     const scale = opts.scale ?? 1;
     const spacing = opts.spacing ?? 1;
-    const glyphs = [...str].map((ch) => font.glyph(ch).width);
+    const glyphs = [...toPixelText(str)].map((ch) => font.glyph(ch).width);
     if (glyphs.length === 0) return 0;
     return (glyphs.reduce((a, b) => a + b, 0) + spacing * (glyphs.length - 1)) * scale;
   }
@@ -140,7 +140,7 @@ export class Canvas {
     const width = this.measureText(str, opts);
     const align = opts.align ?? "left";
     let cx = Math.round(align === "center" ? x - width / 2 : align === "right" ? x - width : x);
-    for (const ch of str) {
+    for (const ch of toPixelText(str)) {
       const g = font.glyph(ch);
       g.bits.forEach((row, gy) =>
         row.forEach((on, gx) => {

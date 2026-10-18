@@ -95,3 +95,20 @@ describe("tone", () => {
     expect(scaleFrame(f, 1)).toBe(f);
   });
 });
+
+describe("pixel text normalisation", () => {
+  it("maps typographic punctuation and accents to ASCII", async () => {
+    const { toPixelText, canDrawWith } = await import("../src/index.js");
+    expect(toPixelText("Beyoncé — “Halo”…")).toBe('Beyonce - "Halo"...');
+    expect(canDrawWith(FONTS["5x7"]!, "Song — Artist")).toBe(true);
+    expect(canDrawWith(FONTS["5x7"]!, "गाना")).toBe(false);
+  });
+
+  it("draws an em dash as a dash, not '?'", () => {
+    const a = new Canvas(30, 8);
+    const b = new Canvas(30, 8);
+    a.text(0, 0, "a—b");
+    b.text(0, 0, "a-b");
+    expect(Array.from(a.data)).toEqual(Array.from(b.data));
+  });
+});
