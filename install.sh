@@ -49,10 +49,13 @@ esac
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
+# api <accept-type> <url> [curl args...]: GitHub API request, authenticated if GITHUB_TOKEN is set.
 api() {
+  local accept="$1"
+  shift
   local auth=()
   [ -n "${GITHUB_TOKEN:-}" ] && auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
-  curl -fsSL "${auth[@]}" -H "Accept: application/vnd.github+json" "$@"
+  curl -fsSL "${auth[@]}" -H "Accept: $accept" "$@"
 }
 
 if [ -n "${ANIMATRIX_TARBALL:-}" ]; then
@@ -64,7 +67,7 @@ else
   if [ "$TAG" = latest ]; then URL="https://api.github.com/repos/$REPO/releases/latest"
   else URL="https://api.github.com/repos/$REPO/releases/tags/$TAG"; fi
   info "looking up release ($TAG)"
-  RELEASE="$(api "$URL")" || die "could not read the release from GitHub. If the repo is private, set GITHUB_TOKEN (e.g. GITHUB_TOKEN=\$(gh auth token))."
+  RELEASE="$(api application/vnd.github+json "$URL")" || die "could not read the release from GitHub. If the repo is private, set GITHUB_TOKEN (e.g. GITHUB_TOKEN=\$(gh auth token))."
   # Pick the tarball and checksum asset API URLs without needing jq.
   # Each asset object lists its API "url" before its "name"; remember the last asset URL seen.
   asset_url() {
@@ -78,8 +81,8 @@ else
   TAR_URL="$(asset_url "$NAME")"
   SUM_URL="$(asset_url "$NAME.sha256")"
   info "downloading $NAME"
-  api -H "Accept: application/octet-stream" "$TAR_URL" -o "$WORK/$NAME"
-  api -H "Accept: application/octet-stream" "$SUM_URL" -o "$WORK/$NAME.sha256"
+  api application/octet-stream "$TAR_URL" -o "$WORK/$NAME"
+  api application/octet-stream "$SUM_URL" -o "$WORK/$NAME.sha256"
   (cd "$WORK" && sha256sum -c --quiet "$NAME.sha256") || die "checksum mismatch; download corrupted."
   TARBALL="$WORK/$NAME"
 fi
