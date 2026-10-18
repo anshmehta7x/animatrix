@@ -169,4 +169,8 @@ systemctl --user start animatrixd
 - 254 and 255 look identical, so 255 is safe. asusctl's clamp to 254 is unnecessary on GA402XU.
 - Lowest visible level: **3** (the 4th dash) at hardware brightness 3. Values 0–2 are off. vddCore
   reported 4 as the first visible level, so this panel is one step more sensitive.
-- Still unconfirmed: suspend/resume.
+- **Suspend/resume verified:** on sleep the daemon hands over to the firmware animation; on resume
+  it re-initialises and the content comes back (journal: "preparing for sleep", "resumed").
+- **Tray icon verified** on GNOME 49 with the AppIndicator extension (the item registers with
+  StatusNotifierWatcher). The tray only appears while `animatrix-tray` runs, so enable "Open at
+  login" in Settings or add the autostart entry.
