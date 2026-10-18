@@ -16,6 +16,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          # pnpm comes from corepack below; v5's automatic cache would look for it too early.
+          package-manager-cache: false
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - name: Build libraries, daemon and CLI
