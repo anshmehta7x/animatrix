@@ -1,5 +1,5 @@
 import { decodeImage } from "../media/decode.js";
-import { drawMedia, mediaParams } from "../media/common.js";
+import { drawMedia, mediaParams, updatable } from "../media/common.js";
 import { str } from "../params.js";
 import type { Effect } from "../types.js";
 import { InvalidArgumentError } from "@anshmehta7x/animatrix-core";
@@ -17,10 +17,12 @@ export const imageEffect: Effect = {
     if (!file) throw new InvalidArgumentError("image: no file given");
     const media = await decodeImage(file);
     const frame = media.frames[0]!;
+    const live = updatable(params, ["file"]);
     return {
       render(_t, canvas) {
-        drawMedia(canvas, frame, params);
+        drawMedia(canvas, frame, live.get());
       },
+      update: live.update,
     };
   },
 };

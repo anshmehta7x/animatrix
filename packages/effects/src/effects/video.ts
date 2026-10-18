@@ -1,5 +1,5 @@
 import { InvalidArgumentError } from "@anshmehta7x/animatrix-core";
-import { drawMedia, mediaParams } from "../media/common.js";
+import { drawMedia, mediaParams, updatable } from "../media/common.js";
 import { probeVideo, VideoStream } from "../media/video.js";
 import { bool, num, str } from "../params.js";
 import type { Effect } from "../types.js";
@@ -36,19 +36,20 @@ export const videoEffect: Effect = {
     const fps = num(params, "fps");
     const stream = new VideoStream(file, even(src.width * k), even(src.height * k), fps);
     stream.start();
-    const loop = bool(params, "loop");
+    const live = updatable(params, ["file", "fps"]);
     return {
       render(_t, canvas) {
         const f = stream.next();
         if (f === null) return { changed: false, delay: 1000 / fps };
         if (f === "end") {
-          if (!loop) return { changed: false, done: true };
+          if (!bool(live.get(), "loop")) return { changed: false, done: true };
           stream.start();
           return { changed: false, delay: 1000 / fps };
         }
-        drawMedia(canvas, f, params);
+        drawMedia(canvas, f, live.get());
         return { delay: 1000 / fps };
       },
+      update: live.update,
       dispose() {
         stream.stop();
       },

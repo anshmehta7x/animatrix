@@ -242,3 +242,52 @@ describe("helpers", () => {
     expect([...next.keys()].filter((i) => next[i])).toEqual([7, 12, 17]);
   });
 });
+
+describe("Runner.update", () => {
+  it("updates a static image in place and re-renders once", async () => {
+    const file = join(dir, "half.png");
+    const half = Buffer.alloc(20 * 10 * 4, 0);
+    for (let y = 0; y < 10; y++)
+      for (let x = 0; x < 10; x++) half.fill(255, (y * 20 + x) * 4, (y * 20 + x) * 4 + 4);
+    await sharp(half, { raw: { width: 20, height: 10, channels: 4 } })
+      .png()
+      .toFile(file);
+    const image = BUILTIN_EFFECTS.find((e) => e.id === "image")!;
+    const clock = fakeClock();
+    const frames: Uint8Array[] = [];
+    const r = await Runner.start({
+      profile: GA402,
+      effect: image,
+      params: { file, fit: "stretch" },
+      services: new Services(),
+      clock,
+      sink: async (f) => void frames.push(f),
+    });
+    await clock.advance(100);
+    expect(frames).toHaveLength(1);
+    expect(r.update({ file, fit: "stretch", panX: 0.5 })).toBe(true);
+    await clock.advance(100);
+    expect(frames).toHaveLength(2);
+    expect(frames[1]).not.toEqual(frames[0]);
+    expect(r.params.panX).toBe(0.5);
+    // a different file needs a restart
+    expect(r.update({ file: join(dir, "other.png") })).toBe(false);
+    // a mapping change needs a restart
+    expect(r.update({ file, mapping: "diagonal" })).toBe(false);
+    await r.stop();
+  });
+
+  it("refuses updates for effects without update()", async () => {
+    const clock = fakeClock();
+    const plasma = BUILTIN_EFFECTS.find((e) => e.id === "plasma")!;
+    const r = await Runner.start({
+      profile: GA402,
+      effect: plasma,
+      services: new Services(),
+      clock,
+      sink: async () => undefined,
+    });
+    expect(r.update({ speed: 2 })).toBe(false);
+    await r.stop();
+  });
+});

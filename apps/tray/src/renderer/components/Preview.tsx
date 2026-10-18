@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } 
 import { latticeFor, profileById } from "@anshmehta7x/animatrix-core";
 import { bridge, call, effectForFile } from "../lib/api";
 import { useStore } from "../lib/store";
+import { usePlacementGestures } from "../lib/usePlacementGestures";
 import styles from "./Preview.module.css";
 
 const WIDTH = 376;
@@ -122,6 +123,8 @@ export function Preview({
     };
   }, [lattice, profile, height, lit, level, snap?.daemon]);
 
+  const gestures = usePlacementGestures();
+
   const onDrop = (e: DragEvent): void => {
     e.preventDefault();
     setDragging(false);
@@ -135,7 +138,18 @@ export function Preview({
 
   return (
     <div
-      className={`${styles.lid} ${dragging ? styles.dragging : ""}`}
+      className={`${styles.lid} ${dragging ? styles.dragging : ""} ${gestures.active ? styles.movable : ""}`}
+      onPointerDown={gestures.onPointerDown}
+      onPointerMove={gestures.onPointerMove}
+      onPointerUp={gestures.onPointerUp}
+      onPointerCancel={gestures.onPointerUp}
+      onWheel={gestures.onWheel}
+      onDoubleClick={gestures.onDoubleClick}
+      title={
+        gestures.active
+          ? "Drag to move · Scroll to zoom · Shift+scroll to rotate · Double-click to reset"
+          : undefined
+      }
       style={{ width: compact ? WIDTH / 2 : WIDTH, height: compact ? height / 2 : height }}
       onDragOver={(e) => {
         e.preventDefault();
@@ -149,6 +163,9 @@ export function Preview({
       <canvas ref={canvas} className={styles.canvas} />
       {overlay && !dragging && <div className={styles.overlay}>{overlay}</div>}
       {dragging && <div className={styles.dropHint}>Drop to show on the lid</div>}
+      {gestures.active && !dragging && !compact && (
+        <div className={styles.gestureHint}>Drag to move · scroll to zoom · ⇧ scroll to rotate</div>
+      )}
     </div>
   );
 }

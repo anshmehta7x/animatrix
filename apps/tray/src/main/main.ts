@@ -236,6 +236,11 @@ async function boot(): Promise<void> {
     const page = process.env.ANIMATRIX_SCREENSHOT_PAGE;
     panel.webContents.once("did-finish-load", () => {
       setTimeout(async () => {
+        const js = process.env.ANIMATRIX_SCREENSHOT_JS;
+        if (js) {
+          await panel!.webContents.executeJavaScript(js);
+          await new Promise((r) => setTimeout(r, 800));
+        }
         if (page) {
           await panel!.webContents.executeJavaScript(
             `[...document.querySelectorAll("nav button")].find(b => b.textContent === ${JSON.stringify(page)})?.click()`,

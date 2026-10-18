@@ -49,7 +49,7 @@ export interface RunnerOptions {
 /** A running effect. */
 export class Runner {
   /** Validated parameter values. */
-  readonly params: ParamValues;
+  params: ParamValues;
   readonly mode: MappingMode;
   /** Effective fps cap. */
   readonly fpsCap: number;
@@ -58,6 +58,10 @@ export class Runner {
   private last: Uint8Array | null = null;
   private timer: unknown = null;
   private stopped = false;
+  /** A tick is running (rendering or waiting on the sink). */
+  private busy = false;
+  /** Render again as soon as the current tick ends (params changed mid-tick). */
+  private kick = false;
   private t0 = 0;
   private nextAt = 0;
   private constructor(
@@ -121,7 +125,47 @@ export class Runner {
     return this.stopped;
   }
 
+  /**
+   * Apply new params to the running instance without recreating it (e.g. panning an image while
+   * dragging). Returns false when the effect can't update in place; restart it then.
+   *
+   * @throws {@link InvalidArgumentError} on bad params.
+   */
+  update(input: ParamValues): boolean {
+    if (this.stopped || !this.instance.update) return false;
+    const next = resolveParams(this.opts.effect.params, input);
+    if ((next.mapping ?? null) !== (this.params.mapping ?? null)) return false;
+    if (!this.instance.update(next)) return false;
+    this.params = next;
+    if (this.busy) {
+      this.kick = true;
+    } else {
+      if (this.timer !== null) this.clock.clearTimeout(this.timer);
+      this.timer = null;
+      this.nextAt = this.clock.now();
+      void this.tick();
+    }
+    return true;
+  }
+
   private async tick(): Promise<void> {
+    this.busy = true;
+    try {
+      await this.renderAndSchedule();
+    } finally {
+      this.busy = false;
+    }
+    // Params changed while we were busy: render again now with the new values.
+    if (this.kick && !this.stopped) {
+      this.kick = false;
+      if (this.timer !== null) this.clock.clearTimeout(this.timer);
+      this.timer = null;
+      this.nextAt = this.clock.now();
+      void this.tick();
+    }
+  }
+
+  private async renderAndSchedule(): Promise<void> {
     if (this.stopped) return;
     const now = this.clock.now();
     let result;

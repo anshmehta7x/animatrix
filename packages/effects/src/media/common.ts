@@ -41,3 +41,22 @@ export function drawMedia(canvas: Canvas, img: GreyImage, p: ParamValues): void 
     levels: num(p, "levels"),
   });
 }
+
+/**
+ * Holds an effect's current params and accepts updates unless one of `restartOn` changed.
+ * Lets media effects re-place/re-tone without decoding the file again.
+ */
+export function updatable(
+  initial: ParamValues,
+  restartOn: readonly string[],
+): { get(): ParamValues; update(next: ParamValues): boolean } {
+  let current = initial;
+  return {
+    get: () => current,
+    update(next) {
+      if (restartOn.some((k) => next[k] !== current[k])) return false;
+      current = next;
+      return true;
+    },
+  };
+}

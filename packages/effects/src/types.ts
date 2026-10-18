@@ -100,6 +100,11 @@ export interface EffectInstance {
    * time (not cleared), so trail effects can fade it.
    */
   render(t: number, canvas: Canvas): RenderResult | void;
+  /**
+   * Apply new (validated) params without recreating the instance, e.g. to pan an image while
+   * dragging. Return false if the change needs a restart (say, a different file).
+   */
+  update?(params: ParamValues): boolean;
   /** Release resources (child processes, subscriptions). */
   dispose?(): void | Promise<void>;
 }

@@ -47,3 +47,27 @@
   color: rgba(255, 255, 255, 0.72);
   pointer-events: none;
 }
+
+.movable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.movable:active {
+  cursor: grabbing;
+}
+
+.gestureHint {
+  position: absolute;
+  inset: auto 0 8px 0;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.lid:hover .gestureHint {
+  opacity: 1;
+}

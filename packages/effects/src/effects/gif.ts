@@ -1,6 +1,6 @@
 import { InvalidArgumentError } from "@anshmehta7x/animatrix-core";
 import { decodeImage } from "../media/decode.js";
-import { drawMedia, mediaParams } from "../media/common.js";
+import { drawMedia, mediaParams, updatable } from "../media/common.js";
 import { bool, num, str } from "../params.js";
 import type { Effect } from "../types.js";
 
@@ -19,18 +19,19 @@ export const gifEffect: Effect = {
     const file = str(params, "file");
     if (!file) throw new InvalidArgumentError("gif: no file given");
     const { frames, delays } = await decodeImage(file);
-    const loop = bool(params, "loop");
-    const speed = num(params, "speed");
+    const live = updatable(params, ["file"]);
     let index = 0;
     return {
       render(_t, canvas) {
-        drawMedia(canvas, frames[index]!, params);
-        const delay = delays[index]! / speed;
+        const p = live.get();
+        drawMedia(canvas, frames[index]!, p);
+        const delay = delays[index]! / num(p, "speed");
         const last = index === frames.length - 1;
         index = last ? 0 : index + 1;
         if (frames.length === 1) return { delay: 0, done: true };
-        return { delay, done: last && !loop };
+        return { delay, done: last && !bool(p, "loop") };
       },
+      update: live.update,
     };
   },
 };

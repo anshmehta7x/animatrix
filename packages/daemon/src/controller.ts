@@ -164,6 +164,12 @@ export class Controller extends EventEmitter<ControllerEvents> {
       if (!this.deps.registry.get(effect))
         throw new InvalidArgumentError(`unknown effect "${effect}"`);
       const prev = this.content;
+      // Same effect already running: try a cheap in-place update (no re-decode, no restart).
+      if (prev.kind === "effect" && prev.effect === effect && this.runner?.update(params)) {
+        this.content = { kind: "effect", effect, params, scene };
+        this.emitState();
+        return;
+      }
       this.content = { kind: "effect", effect, params, scene };
       try {
         await this.reapply();
