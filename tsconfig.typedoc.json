@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "composite": false, "rootDir": "." },
+  "include": ["packages/core/src", "packages/effects/src", "packages/animatrix/src"]
+}

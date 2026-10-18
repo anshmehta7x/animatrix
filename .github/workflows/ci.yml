@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # The tray is type-checked and bundled, never launched, in CI.
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Build libraries, daemon and CLI
+        run: pnpm build
+      - name: Typecheck (incl. tray and examples)
+        run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
+      - name: Format
+        run: pnpm format:check
+      - name: Test (MockTransport, no hardware)
+        run: pnpm test
+      - name: Build tray renderer and Electron bundles
+        run: pnpm -C apps/tray build
+      - name: API docs
+        run: pnpm docs:api

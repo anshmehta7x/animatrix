@@ -1,0 +1,9 @@
+{
+  "name": "animatrix-examples",
+  "private": true,
+  "type": "module",
+  "description": "Runnable examples for @anshmehta7x/animatrix (node examples/<name>.ts)",
+  "dependencies": {
+    "@anshmehta7x/animatrix": "workspace:*"
+  }
+}

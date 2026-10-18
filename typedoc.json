@@ -1,0 +1,14 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "packages/animatrix/src/index.ts",
+    "packages/core/src/index.ts",
+    "packages/effects/src/index.ts"
+  ],
+  "tsconfig": "tsconfig.typedoc.json",
+  "out": "docs/api",
+  "name": "animatrix",
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "readme": "README.md"
+}

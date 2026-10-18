@@ -1,0 +1,35 @@
+# Maintainer: Ansh Mehta <anshkapilmehta@gmail.com>
+# Sketch for an AUR -git package. Untested on Arch.
+pkgname=animatrix-git
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Control the ASUS ROG AniMe Matrix lid display (daemon, CLI, tray, library)"
+arch=('x86_64')
+url="https://github.com/anshmehta7x/animatrix"
+license=('MIT')
+depends=('nodejs>=22' 'ffmpeg' 'systemd' 'dbus' 'gtk3' 'nss' 'alsa-lib')
+optdepends=('pipewire: visualiser capture (pw-record)'
+            'libpulse: visualiser capture (parec)'
+            'gnome-shell-extension-appindicator: tray icon on GNOME')
+makedepends=('git' 'pnpm' 'make')
+provides=('animatrix')
+conflicts=('animatrix')
+source=("git+${url}.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd animatrix
+  printf "0.1.0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd animatrix
+  make build
+}
+
+package() {
+  cd animatrix
+  make install PREFIX=/usr DESTDIR="$pkgdir" USERUNITDIR=/usr/lib/systemd/user NODE=/usr/bin/node
+  make install-udev DESTDIR="$pkgdir" UDEVDIR=/usr/lib/udev/rules.d
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

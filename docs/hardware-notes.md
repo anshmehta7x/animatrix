@@ -85,10 +85,10 @@ About 8 ms per report fits a Full-Speed control transfer: 640 bytes is 10 × 64-
 the controller adds some overhead. The device ceiling is therefore **≈31 fps for full frames**,
 not the ≈25 fps the research doc inferred.
 
-animatrix uses a default cap of 30 fps. It skips panes whose bytes didn't change, so sparse updates
-can go faster. `sendFeatureReport` is synchronous and blocks the event loop for the length of the
-transfer. That is acceptable in the daemon, which does nothing else heavy, but effects must not
-assume free time between frames.
+animatrix caps output at 30 fps by default. The library uses node-hid's `HIDAsync`, so
+transfers run off the event loop. Skipping unchanged panes (`skipUnchangedPanes`) could speed up
+sparse updates, but it is **off by default**: nobody has checked visually whether the firmware
+keeps untouched panes between flushes.
 
 ## 254 vs 255 — pending visual check
 
@@ -107,3 +107,43 @@ which is safe either way.
 
 `node scripts/phase0-spike.ts brightness` steps `C0 04` through 0, 1, 2, 3 with 1.5 s per step.
 All writes are accepted. The visual result is _pending_.
+
+## Other verified findings (2026-10-18)
+
+- **The daemon works end to end** as a systemd user service on GA402XU. It connects over hidraw,
+  shows the startup clock, and is driven through the CLI, the tray panel and Python (jeepney). All
+  writes succeed; the lid image itself is not yet confirmed by eye.
+- **logind delay inhibitor:** dbus-next can't receive the unix fd returned by
+  `org.freedesktop.login1.Manager.Inhibit()`. The call never resolves and the connection drops. The
+  daemon holds the lock through `systemd-inhibit --mode=delay … tail --pid=<daemon> -f /dev/null`
+  instead, which also releases the lock if the daemon dies.
+- **usb@3 is WebUSB-only** (no `findByIds` or kernel-driver detach), so the libusb fallback pins
+  `usb@^2`.
+- **Visible area:** the planar canvas is 68×44. Its largest fully lit rectangle is **41×29 at
+  x=27, y=0**, the top-right part above the diagonal cut. Text effects lay out inside it. The
+  diagonal canvas is 64×39.
+- **Visualiser capture follows the default sink.** Tested silently: a null sink was made the
+  default during capture and a tone was played into it. Spectrum peak was 0.74 (0.00 before), and
+  the original default sink was restored afterwards.
+- **UPower** reports `OnBattery` and `LidIsClosed` on this machine, and **logind** emits
+  `PrepareForSleep`. A real suspend/resume cycle has not been exercised yet.
+
+## When you're back: checklist
+
+The checks below write to the device directly. Stop the daemon first so the two don't fight:
+
+```sh
+systemctl --user stop animatrixd
+node scripts/phase0-spike.ts pattern     # orientation (or: animatrix --direct test-pattern)
+node scripts/phase0-spike.ts levels      # 254 vs 255 and the 0–15 ramp
+node scripts/phase0-spike.ts brightness  # C0 04 steps 0..3
+systemctl --user start animatrixd
+```
+
+1. Fill in the orientation table above. If it's wrong, set `flipX`/`flipY` in
+   `packages/core/src/profiles/ga402.ts`, then rebuild and run `make install`.
+2. Note whether the 254 and 255 halves look the same, and the lowest visible ramp step.
+3. Suspend and resume with animatrixd running. Check that the content comes back and see what the
+   lid did while asleep (`journalctl --user -u animatrixd`).
+4. Log out and back in to activate the AppIndicator extension, then run
+   `gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com` and check the tray icon.

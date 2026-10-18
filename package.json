@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc -b packages/core packages/animatrix packages/effects packages/daemon packages/cli",
-    "typecheck": "tsc -b packages/core packages/animatrix packages/effects packages/daemon packages/cli && pnpm -C apps/tray typecheck",
+    "typecheck": "tsc -b packages/core packages/animatrix packages/effects packages/daemon packages/cli && tsc -p apps/tray --noEmit && tsc -p examples",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -5,3 +5,5 @@ node_modules
 pnpm-lock.yaml
 docs/api
 coverage
+docs/api
+apps/tray/dist
