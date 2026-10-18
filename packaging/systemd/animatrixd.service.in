@@ -1,0 +1,13 @@
+[Unit]
+Description=animatrix daemon (ASUS AniMe Matrix)
+Documentation=https://github.com/anshmehta7x/animatrix
+
+[Service]
+Type=dbus
+BusName=dev.animatrix.Matrix1
+ExecStart=@BINDIR@/animatrixd
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

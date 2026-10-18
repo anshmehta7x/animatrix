@@ -1,0 +1,4 @@
+#!/bin/sh
+# animatrixd wrapper. NODE is pinned at install time: systemd user units don't see nvm's PATH,
+# and native modules (node-hid, usb, sharp) must run on the Node ABI they were installed for.
+exec "@NODE@" "@LIBDIR@/daemon/dist/main.js" "$@"

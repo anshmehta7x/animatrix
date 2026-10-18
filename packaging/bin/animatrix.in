@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "@NODE@" "@LIBDIR@/cli/dist/main.js" "$@"

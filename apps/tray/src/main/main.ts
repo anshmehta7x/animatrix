@@ -11,6 +11,7 @@ import {
   dialog,
   globalShortcut,
   ipcMain,
+  nativeTheme,
   shell,
   type BrowserWindow,
   type Tray,
@@ -156,6 +157,8 @@ const handlers: {
 };
 
 async function boot(): Promise<void> {
+  const theme = process.env.ANIMATRIX_THEME;
+  if (theme === "light" || theme === "dark") nativeTheme.themeSource = theme;
   ipcMain.handle(
     IPC.invoke,
     async (_e, method: keyof BridgeMethods, ...args: unknown[]): Promise<Result<unknown>> => {
@@ -248,7 +251,10 @@ app.on("before-quit", () => {
   quitting = true;
   link.stop();
 });
-app.whenReady().then(boot, (err: unknown) => {
-  console.error(err);
-  app.quit();
-});
+app
+  .whenReady()
+  .then(boot)
+  .catch((err: unknown) => {
+    console.error("animatrix tray failed to start:", err);
+    app.exit(1);
+  });

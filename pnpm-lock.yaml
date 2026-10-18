@@ -53,6 +53,9 @@ importers:
       dbus-next:
         specifier: ^0.10.2
         version: 0.10.2
+      electron:
+        specifier: ^44.9.0
+        version: 44.9.0
       lucide-react:
         specifier: ^1.59.0
         version: 1.59.0(@types/react@19.3.0)(react@19.3.1)
@@ -72,9 +75,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^6.1.2
         version: 6.1.2(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))
-      electron:
-        specifier: ^44.9.0
-        version: 44.9.0
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2

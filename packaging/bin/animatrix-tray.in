@@ -1,0 +1,4 @@
+#!/bin/sh
+# Launch (or, if already running, toggle) the animatrix panel.
+export ANIMATRIX_TRAY_BIN="@BINDIR@/animatrix-tray"
+exec "@LIBDIR@/tray/node_modules/electron/dist/electron" --ozone-platform-hint=auto "@LIBDIR@/tray" "$@"

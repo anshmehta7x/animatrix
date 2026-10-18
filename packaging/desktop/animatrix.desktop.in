@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=animatrix
+GenericName=AniMe Matrix
+Comment=Control the AniMe Matrix lid display
+Exec=@BINDIR@/animatrix-tray
+Icon=animatrix
+Terminal=false
+Categories=Utility;Settings;HardwareSettings;
+Keywords=AniMe;Matrix;ROG;ASUS;LED;lid;
+StartupWMClass=animatrix

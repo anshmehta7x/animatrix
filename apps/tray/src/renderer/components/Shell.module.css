@@ -80,9 +80,13 @@
 
 .grid {
   display: grid;
+  flex: 1 1 auto;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding-top: 12px;
+  align-content: start;
+  gap: 6px;
+  min-height: 0;
+  padding-top: 10px;
+  overflow-y: auto;
 }
 
 .tile {
@@ -90,8 +94,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  height: 84px;
+  gap: 6px;
+  height: 70px;
   border: none;
   border-radius: var(--radius-tile);
   background: var(--raised);
@@ -113,8 +117,8 @@
 .tileIcon {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--accent-soft);
   color: var(--accent);
