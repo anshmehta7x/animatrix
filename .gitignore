@@ -6,3 +6,4 @@ out/
 coverage/
 docs/api/
 .vite/
+dist/
