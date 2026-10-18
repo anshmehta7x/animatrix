@@ -1,0 +1,10 @@
+# AniMe Matrix (ASUS ROG, 0b05:193b): give the logged-in seat user access.
+# Matched by VID:PID, never by hidraw number. 70- prefix: uaccess must run before 73-seat-late.
+# Note: on Slash-era laptops (GA403/GU605 2024) the same PID is the Slash device; animatrix
+# refuses those models in software (DMI check), the rule only grants access.
+
+# hidraw node (primary transport: HIDIOCSFEATURE via node-hid)
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b05", ATTRS{idProduct}=="193b", TAG+="uaccess"
+
+# USB device node (libusb fallback transport)
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0b05", ATTR{idProduct}=="193b", TAG+="uaccess"

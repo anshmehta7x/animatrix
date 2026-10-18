@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-electron/
+out/
+*.tsbuildinfo
+coverage/
+docs/api/
+.vite/

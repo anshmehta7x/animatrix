@@ -1,0 +1,23 @@
+{
+  "name": "@anshmehta7x/animatrix",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Drive the ASUS ROG AniMe Matrix LED lid display from Node.js",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "node-hid": "^3.4.0",
+    "usb": "^3.2.1"
+  }
+}

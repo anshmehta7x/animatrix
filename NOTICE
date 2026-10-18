@@ -1,0 +1,18 @@
+animatrix — provenance notice
+
+All code in this repository was written from scratch. No source code was copied or
+ported from the projects below. They were read only as references for protocol facts
+(byte values, packet layouts, LED geometry), which are not copyrightable expression.
+Those facts were taken from the research write-up `anime-matrix-research.md` (a separate,
+private repo), which cites each fact back to these sources:
+
+- G-Helper (seerge/g-helper), GPL-3.0 — app/AnimeMatrix/*: opcodes, per-row geometry
+  formulas, C5 built-in bit layout, planar/diagonal mapping idea.
+- asusctl (asus-linux), MPL-2.0 — rog-anime/*: 627-byte pane headers, libusb SET_REPORT
+  parameters, physical LED pitch.
+- Starlight (vddCore), LGPL-3.0 — origin of the GA402 row formula.
+- vddCore's "AniMe Matrix GA402R" protocol write-up — report ID, flush requirement,
+  visible-level threshold.
+
+"ASUS", "ROG", "AniMe Matrix" and "Zephyrus" are trademarks of ASUSTeK Computer Inc.
+This project is not affiliated with or endorsed by ASUS.
