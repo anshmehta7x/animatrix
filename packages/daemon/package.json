@@ -1,5 +1,23 @@
 {
-  "name": "tmp",
+  "name": "@anshmehta7x/animatrixd",
+  "version": "0.1.0",
   "private": true,
-  "type": "module"
+  "description": "animatrixd: the AniMe Matrix daemon (device owner, scheduler, power policy, D-Bus API)",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "animatrixd": "dist/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@anshmehta7x/animatrix": "workspace:*",
+    "@anshmehta7x/animatrix-core": "workspace:*",
+    "@anshmehta7x/animatrix-effects": "workspace:*",
+    "dbus-next": "^0.10.2",
+    "smol-toml": "^1.9.1"
+  }
 }

@@ -58,7 +58,23 @@ importers:
 
   packages/core: {}
 
-  packages/daemon: {}
+  packages/daemon:
+    dependencies:
+      '@anshmehta7x/animatrix':
+        specifier: workspace:*
+        version: link:../animatrix
+      '@anshmehta7x/animatrix-core':
+        specifier: workspace:*
+        version: link:../core
+      '@anshmehta7x/animatrix-effects':
+        specifier: workspace:*
+        version: link:../effects
+      dbus-next:
+        specifier: ^0.10.2
+        version: 0.10.2
+      smol-toml:
+        specifier: ^1.9.1
+        version: 1.9.1
 
   packages/effects:
     dependencies:
@@ -1271,6 +1287,10 @@ packages:
 
   signal-exit@3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
+
+  smol-toml@1.9.1:
+    resolution: {integrity: sha512-j7WyPdf0CJoutMzMoPLF/bVXHtKZIT9Rb4eGeEbWw8X2t5oirjPgpL+OpaENZrILYaXqYwnVH+qgUwVbl+pUJQ==}
+    engines: {node: '>= 18'}
 
   source-map-js@1.2.2:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
@@ -2706,6 +2726,8 @@ snapshots:
 
   signal-exit@3.0.7:
     optional: true
+
+  smol-toml@1.9.1: {}
 
   source-map-js@1.2.2: {}
 
