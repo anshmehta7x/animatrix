@@ -4,7 +4,7 @@
 
 Control the **ASUS ROG AniMe Matrix** LED display on the lid of the ROG Zephyrus G14 and G16 from Linux. Show images, GIFs, video, text, clocks, a music visualiser, generative effects and the firmware's own animations. It's an open-source Linux alternative to the AniMe Matrix controls in Armoury Crate and G-Helper, and it needs neither Windows tools nor asusd.
 
-<p><img src="docs/images/panel-dark.png" width="300" alt="animatrix tray panel showing a live preview of the AniMe Matrix LED lattice with a clock" /></p>
+<p><img src="docs/images/gallery.png" alt="The animatrix panel showing matrix rain, the music visualiser, an image being placed, and the clock, each on a live preview of the AniMe Matrix LED lattice" /></p>
 
 It comes in four parts:
 
@@ -67,12 +67,6 @@ On Wayland the compositor decides where windows open, so GNOME centres the panel
 ### asusd
 
 If `asusd` (asusctl) is running it claims the AniMe device, and animatrix tells you so rather than fighting it. Stop it with `sudo systemctl stop asusd` to use animatrix.
-
-## Screenshots
-
-<p>
-  <img src="docs/images/panel-light-power.png" width="300" alt="animatrix panel in light mode on the Power page" />
-</p>
 
 ## Command line
 

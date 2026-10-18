@@ -273,11 +273,16 @@
         color: var(--text-2);
         font-size: 14px;
       }
-      .shots {
+      .gallery {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin-bottom: 40px;
+      }
+      .shots ul {
         display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: 48px;
-        align-items: start;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        column-gap: 48px;
       }
       .shots img {
         width: 100%;
@@ -445,14 +450,17 @@
       </section>
 
       <section>
-        <div class="wrap shots">
+        <div class="wrap">
           <img
-            src="panel-dark.png"
-            width="400"
+            class="gallery"
+            src="gallery.png"
+            width="1672"
             height="600"
-            alt="The animatrix tray panel with a live preview of the LED lattice showing a clock"
+            alt="The animatrix panel showing matrix rain, the music visualiser, an image being placed and the clock on a live preview of the LED lattice"
             loading="lazy"
           />
+        </div>
+        <div class="wrap shots">
           <ul>
             <li>
               <strong>A compact tray panel</strong> with a live preview of the real staggered LED

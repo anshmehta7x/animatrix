@@ -47,6 +47,9 @@ export const visualiserEffect: Effect = {
       style === "spectrum" || style === "spectrogram" ? ctx.width : num(params, "bands");
     const level = new Float32Array(bandCount);
     const peak = new Float32Array(bandCount);
+    // Auto-ranging: show a window of the dB scale just below the recent loudest band, so quiet
+    // and loud sources both use the full bar height. Sensitivity widens the window.
+    let ref = 0.5;
     // Bars rise from the panel's real bottom edge in each column (it is slanted by the cut).
     const bottoms = columnBottoms(ctx.visible, ctx.width, ctx.height);
     return {
@@ -64,8 +67,10 @@ export const visualiserEffect: Effect = {
           return;
         }
         const raw = audio.spectrum(bandCount);
+        ref = Math.max(ref * 0.997, ...raw, 0.2);
+        const span = 0.35 * sens;
         for (let i = 0; i < bandCount; i++) {
-          const v = Math.min(1, raw[i]! * sens);
+          const v = Math.min(1, Math.max(0, (raw[i]! - (ref - span)) / span));
           level[i] = v > level[i]! ? v : level[i]! * smooth + v * (1 - smooth);
           peak[i] = Math.max(level[i]!, peak[i]! - 0.015);
         }
