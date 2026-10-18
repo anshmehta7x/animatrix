@@ -115,6 +115,11 @@ export class Runner {
     return runner;
   }
 
+  /** Frames per second this effect actually renders at (0 = static). */
+  get fps(): number {
+    return this.opts.effect.fps === 0 ? 0 : Math.min(this.opts.effect.fps, this.fpsCap);
+  }
+
   /** The most recent frame sent (null before the first). */
   get lastFrame(): Uint8Array | null {
     return this.last;

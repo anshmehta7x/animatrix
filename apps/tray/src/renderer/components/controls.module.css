@@ -3,24 +3,24 @@
 }
 
 .groupTitle {
-  margin: 0 4px 6px;
+  margin: 0 2px 6px;
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-2);
 }
 
 .groupBody {
-  background: var(--raised);
+  padding: 0 12px;
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-tile);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-  padding: 2px 12px;
+  background: var(--surface);
 }
 
 .row {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 40px;
+  min-height: 42px;
   padding: 6px 0;
 }
 
@@ -54,69 +54,83 @@
 
 .toggle {
   position: relative;
-  width: 34px;
-  height: 20px;
+  width: 32px;
+  height: 18px;
   flex: none;
-  border: none;
-  border-radius: 10px;
-  background: var(--hairline);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 9px;
+  background: var(--surface-hover);
   cursor: pointer;
-  transition: background-color var(--dur) var(--ease);
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
 }
 
 .toggle.on {
+  border-color: var(--accent);
   background: var(--accent);
 }
 
 .knob {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  transition: transform var(--dur) var(--ease);
+  background: var(--text-3);
+  transition:
+    transform var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
 }
 
 .on .knob {
+  background: var(--on-accent);
   transform: translateX(14px);
 }
 
 .sliderWrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
 }
 
 .slider {
   flex: 1 1 auto;
   min-width: 90px;
-  height: 4px;
+  height: 2px;
   margin: 0;
-  border-radius: 2px;
+  border-radius: 1px;
   appearance: none;
-  background: linear-gradient(to right, var(--accent) var(--fill), var(--hairline) var(--fill));
+  background: linear-gradient(
+    to right,
+    var(--text) var(--fill),
+    var(--hairline-strong) var(--fill)
+  );
   cursor: pointer;
 }
 
 .slider::-webkit-slider-thumb {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--hairline-strong);
   border-radius: 50%;
   appearance: none;
-  background: #fff;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+  background: var(--bg);
+  box-shadow: 0 0 0 3px var(--bg);
+  transition: border-color var(--dur) var(--ease);
+}
+
+.slider:hover::-webkit-slider-thumb,
+.slider:focus-visible::-webkit-slider-thumb {
+  border-color: var(--accent);
 }
 
 .sliderValue {
-  width: 38px;
-  font-size: var(--text-sm);
+  width: 40px;
+  font-family: var(--mono);
+  font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--text-2);
@@ -126,76 +140,105 @@
   display: inline-flex;
   padding: 2px;
   gap: 2px;
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
-  background: var(--hairline);
+  background: var(--bg);
 }
 
 .seg,
 .segOn {
-  padding: 3px 9px;
+  padding: 2px 9px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   background: transparent;
+  color: var(--text-2);
   font-size: var(--text-sm);
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color var(--dur) var(--ease);
+  transition:
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+.seg:hover {
+  color: var(--text);
 }
 
 .segOn {
-  background: var(--surface-solid);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
-  font-weight: 550;
+  background: var(--surface-hover);
+  box-shadow: inset 0 -1px 0 var(--accent);
+  color: var(--text);
+  font-weight: 500;
 }
 
 .select,
 .text {
   min-width: 0;
   max-width: 100%;
-  padding: 4px 8px;
-  border: none;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
-  background: var(--hairline);
+  background: var(--bg);
   font-size: var(--text-sm);
+  transition: border-color var(--dur) var(--ease);
+}
+
+.select:hover,
+.text:hover {
+  border-color: var(--text-3);
 }
 
 .text {
-  width: 180px;
+  width: 170px;
   user-select: text;
+}
+
+.text:focus {
+  border-color: var(--accent);
+  outline: none;
 }
 
 .button,
 .primary,
 .danger {
-  padding: 5px 12px;
-  border: none;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-control);
-  background: var(--raised-hover);
-  box-shadow: inset 0 0 0 1px var(--hairline);
+  background: var(--bg);
   font-size: var(--text-sm);
-  font-weight: 550;
+  font-weight: 500;
   cursor: pointer;
-  transition: filter var(--dur) var(--ease);
+  white-space: nowrap;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.button:hover,
+.danger:hover {
+  border-color: var(--text-3);
+  background: var(--surface-hover);
 }
 
 .primary {
+  border-color: var(--accent);
   background: var(--accent);
   color: var(--on-accent);
-  box-shadow: none;
+}
+
+.primary:hover {
+  filter: brightness(1.08);
 }
 
 .danger {
   color: var(--danger);
 }
 
-.button:hover,
-.primary:hover,
-.danger:hover {
-  filter: brightness(1.06);
-}
-
 .button:disabled,
 .primary:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
+  filter: none;
 }

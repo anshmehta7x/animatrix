@@ -160,3 +160,29 @@ export function Page({
     </div>
   );
 }
+
+/** Connection and device facts, shown under the navigation grid. */
+export function StatusFooter(): ReactNode {
+  const { snap, state } = useStore();
+  const connected = Boolean(snap?.daemon && state?.connected);
+  const info = snap?.info;
+  const text = !snap?.daemon
+    ? "animatrixd not running"
+    : connected
+      ? `Connected over ${info?.transport ?? "hidraw"}`
+      : "Device not connected";
+  return (
+    <footer className={styles.footer}>
+      <span className={styles.footerStatus}>
+        <span className={`${styles.dot} ${connected ? styles.dotOn : ""}`} aria-hidden />
+        {text}
+      </span>
+      {info && (
+        <span className={styles.footerStats}>
+          <span>{info.leds} LEDs</span>
+          <span>{state?.fps ? `${state.fps} fps` : "idle"}</span>
+        </span>
+      )}
+    </footer>
+  );
+}

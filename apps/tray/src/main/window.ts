@@ -4,10 +4,14 @@
  * centres it). On X11 it is placed near the tray icon.
  */
 import { join } from "node:path";
-import { BrowserWindow, screen, type Rectangle } from "electron";
+import { BrowserWindow, nativeTheme, screen, type Rectangle } from "electron";
 
-/** Panel content size; the window adds a transparent margin for the soft shadow. */
-export const PANEL = { width: 400, height: 600, margin: 12 };
+/** Panel size. The window is opaque and exactly this size. */
+export const PANEL = { width: 400, height: 600 };
+
+/** Window background matching the renderer's theme, so there is no flash on show. */
+export const panelBackground = (): string =>
+  nativeTheme.shouldUseDarkColors ? "#000000" : "#ffffff";
 
 export function createPanel(
   preload: string,
@@ -15,11 +19,11 @@ export function createPanel(
   rendererFile: string,
 ): BrowserWindow {
   const win = new BrowserWindow({
-    width: PANEL.width + PANEL.margin * 2,
-    height: PANEL.height + PANEL.margin * 2,
+    width: PANEL.width,
+    height: PANEL.height,
     show: false,
     frame: false,
-    transparent: true,
+    transparent: false,
     resizable: false,
     maximizable: false,
     minimizable: false,
@@ -27,7 +31,7 @@ export function createPanel(
     skipTaskbar: true,
     alwaysOnTop: true,
     title: "animatrix",
-    backgroundColor: "#00000000",
+    backgroundColor: panelBackground(),
     webPreferences: {
       preload,
       contextIsolation: true,

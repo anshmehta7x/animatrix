@@ -12,7 +12,10 @@
   cursor: pointer;
 }
 
-.groupRow + .groupRow,
+.listRow:hover .listName {
+  color: var(--accent);
+}
+
 .listRow + .listRow,
 .sceneRow + .sceneRow {
   border-top: 1px solid var(--hairline);
@@ -23,6 +26,10 @@
   flex: 1 1 auto;
   flex-direction: column;
   min-width: 0;
+}
+
+.listName {
+  transition: color var(--dur) var(--ease);
 }
 
 .listSub {
@@ -47,18 +54,18 @@
 .iconButton {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   flex: none;
-  border: none;
-  border-radius: 50%;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-3);
   cursor: pointer;
 }
 
 .iconButton:hover {
-  background: var(--hairline);
+  border-color: var(--hairline-strong);
   color: var(--danger);
 }
 

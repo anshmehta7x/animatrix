@@ -34,7 +34,7 @@ export function ScenesPage(): ReactNode {
               onClick={() => void run(() => call("applyScene", n))}
             >
               <span className={styles.listText}>
-                <span>{n}</span>
+                <span className={styles.listName}>{n}</span>
                 {(() => {
                   const effectName = snap.effects.find((e) => e.id === s.effect)?.name ?? s.effect;
                   return effectName !== n ? (

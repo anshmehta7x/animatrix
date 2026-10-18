@@ -22,7 +22,7 @@ export function EffectsPage(): ReactNode {
             onClick={() => void run(() => call("play", e.id, {}))}
           >
             <span className={styles.listText}>
-              <span>{e.name}</span>
+              <span className={styles.listName}>{e.name}</span>
               <span className={styles.listSub}>{e.description}</span>
             </span>
             {state?.effect === e.id && <Check size={16} className={styles.check} />}

@@ -59,7 +59,7 @@ export const MAPPING_PARAM: ParamSchema = {
     label: "Mapping",
     options: opts([
       ["planar", "Planar"],
-      ["diagonal", "Diagonal 45°"],
+      ["diagonal", "Diagonal"],
     ]),
     default: "planar",
   },

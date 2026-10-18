@@ -1,56 +1,58 @@
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
+/*
+ * Vercel's monochrome base with Neon's green as the only accent. The accent marks things that are
+ * live or on (toggles, the active segment, the running item, focus); never decoration.
+ */
 :root {
   color-scheme: light dark;
-  --font: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: "Geist Variable", "Geist", system-ui, sans-serif;
+  --mono: "Geist Mono Variable", "Geist Mono", ui-monospace, monospace;
   --text-xs: 11px;
   --text-sm: 12px;
   --text-md: 13px;
   --text-lg: 15px;
-  --text-xl: 20px;
 
-  --surface: rgba(246, 246, 249, 0.86);
-  --surface-solid: #f3f3f6;
-  --raised: rgba(255, 255, 255, 0.78);
-  --raised-hover: rgba(255, 255, 255, 0.98);
-  --hairline: rgba(20, 22, 30, 0.09);
-  --text: #18191d;
-  --text-2: #62646d;
-  --text-3: #9a9ca4;
-  --accent: #4b6bfb;
-  --accent-soft: rgba(75, 107, 251, 0.13);
+  --bg: #ffffff;
+  --surface: #fafafa;
+  --surface-hover: #f2f2f2;
+  --hairline: #eaeaea;
+  --hairline-strong: #d4d4d4;
+  --text: #171717;
+  --text-2: #666666;
+  --text-3: #a1a1a1;
+  --accent: #00a86b;
+  --accent-soft: rgba(0, 168, 107, 0.1);
   --on-accent: #ffffff;
-  --danger: #d6453d;
-  --lid: #1b1c21;
-  --lid-edge: #2a2c33;
-  --led-off: rgba(255, 255, 255, 0.07);
-  --led-on: #f3f5ff;
-  --led-glow: rgba(176, 192, 255, 0.85);
-  --shadow: 0 18px 40px rgba(10, 12, 20, 0.22), 0 2px 6px rgba(10, 12, 20, 0.12);
-  --radius-panel: 18px;
-  --radius-tile: 12px;
-  --radius-control: 8px;
+  --danger: #e5484d;
+  --lid: #000000;
+  --lid-edge: #1a1a1a;
+  --led-off: rgba(255, 255, 255, 0.06);
+  --led-on: #ffffff;
+  --led-glow: rgba(255, 255, 255, 0.75);
+  --radius-panel: 0;
+  --radius-tile: 10px;
+  --radius-control: 6px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --dur: 170ms;
+  --dur: 150ms;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --surface: rgba(32, 33, 38, 0.86);
-    --surface-solid: #202126;
-    --raised: rgba(255, 255, 255, 0.06);
-    --raised-hover: rgba(255, 255, 255, 0.1);
-    --hairline: rgba(255, 255, 255, 0.08);
-    --text: #f1f2f5;
-    --text-2: #a4a6af;
-    --text-3: #6f717a;
-    --accent: #7a90ff;
-    --accent-soft: rgba(122, 144, 255, 0.18);
-    --on-accent: #0f1222;
-    --danger: #ff6b61;
-    --lid: #121317;
-    --lid-edge: #23252b;
-    --shadow: 0 18px 44px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --surface-hover: #141414;
+    --hairline: #262626;
+    --hairline-strong: #333333;
+    --text: #ededed;
+    --text-2: #a1a1a1;
+    --text-3: #666666;
+    --accent: #00e599;
+    --accent-soft: rgba(0, 229, 153, 0.1);
+    --on-accent: #000000;
+    --danger: #ff6166;
+    --lid-edge: #0d0d0d;
   }
 }
 
@@ -63,14 +65,14 @@ body,
 #root {
   margin: 0;
   height: 100%;
-  background: transparent;
   overflow: hidden;
+  background: var(--bg);
 }
 
 body {
   font-family: var(--font);
   font-size: var(--text-md);
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   user-select: none;
@@ -85,8 +87,12 @@ select {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 1px solid var(--accent);
   outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
 }
 
 @media (prefers-reduced-motion: reduce) {

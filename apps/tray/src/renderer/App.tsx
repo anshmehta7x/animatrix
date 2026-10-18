@@ -10,7 +10,14 @@ import {
   BatteryCharging,
 } from "lucide-react";
 import { Preview } from "./components/Preview";
-import { NavGrid, NoticeBar, Page, TopControls, type NavItem } from "./components/Shell";
+import {
+  NavGrid,
+  NoticeBar,
+  Page,
+  StatusFooter,
+  TopControls,
+  type NavItem,
+} from "./components/Shell";
 import { call } from "./lib/api";
 import { BuiltinsPage } from "./pages/Builtins";
 import { EffectPage } from "./pages/EffectPage";
@@ -22,14 +29,14 @@ import { SettingsPage } from "./pages/Settings";
 import styles from "./App.module.css";
 
 const NAV: NavItem[] = [
-  { id: "media", label: "Media", icon: <Image size={17} /> },
-  { id: "clock", label: "Clock", icon: <Clock size={17} /> },
-  { id: "visualiser", label: "Visualiser", icon: <AudioWaveform size={17} /> },
-  { id: "effects", label: "Effects", icon: <Sparkles size={17} /> },
-  { id: "builtins", label: "Built-ins", icon: <Clapperboard size={17} /> },
-  { id: "scenes", label: "Scenes", icon: <Layers size={17} /> },
-  { id: "power", label: "Power", icon: <BatteryCharging size={17} /> },
-  { id: "settings", label: "Settings", icon: <Settings2 size={17} /> },
+  { id: "media", label: "Media", icon: <Image size={16} /> },
+  { id: "clock", label: "Clock", icon: <Clock size={16} /> },
+  { id: "visualiser", label: "Visualiser", icon: <AudioWaveform size={16} /> },
+  { id: "effects", label: "Effects", icon: <Sparkles size={16} /> },
+  { id: "builtins", label: "Built-ins", icon: <Clapperboard size={16} /> },
+  { id: "scenes", label: "Scenes", icon: <Layers size={16} /> },
+  { id: "power", label: "Power", icon: <BatteryCharging size={16} /> },
+  { id: "settings", label: "Settings", icon: <Settings2 size={16} /> },
 ];
 
 function pageFor(id: string): ReactNode {
@@ -76,7 +83,10 @@ export function App(): ReactNode {
           {pageFor(page)}
         </Page>
       ) : (
-        <NavGrid items={NAV} onOpen={setPage} />
+        <>
+          <NavGrid items={NAV} onOpen={setPage} />
+          <StatusFooter />
+        </>
       )}
     </main>
   );

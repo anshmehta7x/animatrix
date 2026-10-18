@@ -25,7 +25,7 @@ import {
   watchTrayHost,
 } from "./environment.js";
 import { createTray } from "./tray.js";
-import { createPanel, placeNear, rendererPath } from "./window.js";
+import { createPanel, panelBackground, placeNear, rendererPath } from "./window.js";
 import {
   IPC,
   type BridgeMethods,
@@ -198,6 +198,7 @@ async function boot(): Promise<void> {
       togglePanel(false);
     }
   });
+  nativeTheme.on("updated", () => panel?.setBackgroundColor(panelBackground()));
   panel.on("show", () => link.setPreview(true));
   panel.on("hide", () => link.setPreview(false));
 

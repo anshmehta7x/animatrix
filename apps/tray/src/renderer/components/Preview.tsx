@@ -161,6 +161,9 @@ export function Preview({
       role="img"
     >
       <canvas ref={canvas} className={styles.canvas} />
+      {lit && (state?.content === "effect" || state?.content === "frame") && (
+        <span className={styles.live} aria-hidden />
+      )}
       {overlay && !dragging && <div className={styles.overlay}>{overlay}</div>}
       {dragging && <div className={styles.dropHint}>Drop to show on the lid</div>}
       {gestures.active && !dragging && !compact && (

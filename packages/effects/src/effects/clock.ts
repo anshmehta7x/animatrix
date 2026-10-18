@@ -86,7 +86,7 @@ export const clockEffect: Effect = {
       ...(FONT_PARAMS.font as Extract<(typeof FONT_PARAMS)["font"], { type: "select" }>),
       default: "sans",
     },
-    fit: { type: "boolean", label: "Fit to panel", default: true },
+    fitToPanel: { type: "boolean", label: "Fit to panel", default: true },
     size: {
       type: "number",
       label: "Size",
@@ -95,7 +95,7 @@ export const clockEffect: Effect = {
       step: 1,
       unit: "px",
       default: 14,
-      visibleWhen: { fit: false },
+      visibleWhen: { fitToPanel: false },
     },
     ...MAPPING_PARAM,
   },
@@ -107,7 +107,7 @@ export const clockEffect: Effect = {
     const small = new TextWriter({ kind: "pixel", id: "5x7", size: 7 });
     const extraH = face === "date" || seconds ? small.height + 2 : 0;
     const base: FontChoice = { ...fontFromParams(params), bold: true };
-    let font = bool(params, "fit")
+    let font = bool(params, "fitToPanel")
       ? fitFont(base, hour12 ? 5 : 5, r.width, r.height - extraH)
       : { ...base, size: num(params, "size") };
     let big = new TextWriter(font);
@@ -129,7 +129,7 @@ export const clockEffect: Effect = {
           void big.prepare(time);
           return { changed: false, delay: 50 };
         }
-        if (bool(params, "fit") && w > r.width && font.size > 6) {
+        if (bool(params, "fitToPanel") && w > r.width && font.size > 6) {
           font = { ...font, size: font.size - 1 };
           big = new TextWriter(font);
           return { changed: false, delay: 20 };

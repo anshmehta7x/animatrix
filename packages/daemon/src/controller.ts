@@ -302,7 +302,7 @@ export class Controller extends EventEmitter<ControllerEvents> {
       connected: this.device !== null,
       displayOn: this.device?.isDisplayOn ?? false,
       gate: this.gate,
-      fps: this.runner?.fpsCap ?? 0,
+      fps: this.runner?.fps ?? 0,
       error: this.slot.error,
     });
   }
