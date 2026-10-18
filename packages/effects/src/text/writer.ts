@@ -16,6 +16,8 @@ export interface FontChoice {
   id: string;
   /** Target glyph height in px. */
   size: number;
+  /** Bold weight (system fonts only). */
+  bold?: boolean;
 }
 
 /** Read the shared FONT_PARAMS. */
@@ -50,7 +52,7 @@ export class TextWriter {
   async prepare(text: string): Promise<void> {
     if (this.font.kind === "pixel" || this.ready.has(text)) return;
     this.pending.add(text);
-    const img = await rasterText(text, this.font.id, this.font.size);
+    const img = await rasterText(text, this.font.id, this.font.size, this.font.bold ?? false);
     this.ready.set(text, img);
     this.pending.delete(text);
     if (this.ready.size > 64) this.ready.delete(this.ready.keys().next().value!);

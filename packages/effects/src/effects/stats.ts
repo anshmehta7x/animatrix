@@ -27,14 +27,15 @@ export const statsEffect: Effect = {
         ];
         const shown = rows.filter((r) => r[1] !== null);
         c.clear();
-        const rowH = Math.floor(c.height / shown.length);
+        const r = ctx.safe;
+        const rowH = Math.floor(r.height / shown.length);
         const labelW = labels ? 13 : 0;
         shown.forEach(([name, v], i) => {
-          const y = i * rowH + Math.floor((rowH - 5) / 2);
-          if (labels) c.text(0, y, name, { font: "3x5", value: 140 });
-          const barW = c.width - labelW - 1;
-          c.rect(labelW, y, barW, 5, 30);
-          c.rect(labelW, y, Math.round(barW * (v ?? 0)), 5, 255);
+          const y = r.y + i * rowH + Math.floor((rowH - 5) / 2);
+          if (labels) c.text(r.x, y, name, { font: "3x5", value: 140 });
+          const barW = r.width - labelW - 1;
+          c.rect(r.x + labelW, y, barW, 5, 30);
+          c.rect(r.x + labelW, y, Math.round(barW * (v ?? 0)), 5, 255);
         });
       },
       dispose: release,

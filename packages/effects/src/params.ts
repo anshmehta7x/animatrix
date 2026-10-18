@@ -89,7 +89,14 @@ export const TONE_PARAMS: ParamSchema = {
     ]),
     default: "none",
   },
-  levels: { type: "number", label: "Dither levels", min: 2, max: 16, step: 1, default: 2 },
+  levels: {
+    type: "number",
+    label: "Dither levels",
+    min: 2,
+    max: 16,
+    step: 1,
+    default: 2,
+  },
 };
 
 /** Placement params shared by media effects. */
@@ -125,6 +132,12 @@ export const FONT_PARAMS: ParamSchema = {
     ]),
     default: "5x7",
   },
-  customFont: { type: "string", label: "Custom font family", default: "", placeholder: "Inter" },
+  customFont: {
+    type: "string",
+    label: "Custom font family",
+    default: "",
+    placeholder: "Inter",
+    visibleWhen: { font: "custom" },
+  },
   size: { type: "number", label: "Size", min: 5, max: 40, step: 1, unit: "px", default: 7 },
 };

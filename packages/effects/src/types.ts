@@ -1,5 +1,5 @@
 /** The effect plugin contract. One effect = one file exporting an {@link Effect}. */
-import type { Canvas, MappingMode, ModelProfile } from "@anshmehta7x/animatrix-core";
+import type { Canvas, MappingMode, ModelProfile, Rect } from "@anshmehta7x/animatrix-core";
 import type { Services } from "./services/index.js";
 
 /** A numeric slider. */
@@ -45,8 +45,14 @@ export interface FileParam {
   default: string;
 }
 
+/** Show a parameter only when other parameters have these values (UI hint, not validation). */
+export interface VisibleWhen {
+  visibleWhen?: Readonly<Record<string, string | number | boolean>>;
+}
+
 /** One parameter's schema. The UI renders settings from these. */
-export type ParamSpec = NumberParam | BooleanParam | SelectParam | StringParam | FileParam;
+export type ParamSpec = (NumberParam | BooleanParam | SelectParam | StringParam | FileParam) &
+  VisibleWhen;
 
 /** An effect's parameter schema, keyed by parameter name. Order is display order. */
 export type ParamSchema = Readonly<Record<string, ParamSpec>>;
@@ -64,6 +70,13 @@ export interface EffectContext {
   readonly height: number;
   /** Active mapping. */
   readonly mode: MappingMode;
+  /**
+   * Largest rectangle of the canvas that is fully visible on the panel (the panel has a cut
+   * corner). Lay out text and meters inside it.
+   */
+  readonly safe: Rect;
+  /** Per-pixel visibility mask (1 = reaches an LED), `width * height`. */
+  readonly visible: Uint8Array;
   /** The panel profile. */
   readonly profile: ModelProfile;
   /** Shared, lazily started data sources (audio, now-playing, system stats). */

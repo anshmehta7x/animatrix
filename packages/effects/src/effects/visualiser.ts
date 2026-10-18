@@ -1,3 +1,4 @@
+import { columnBottoms } from "../layout.js";
 import { MAPPING_PARAM, bool, num, str } from "../params.js";
 import type { Effect } from "../types.js";
 
@@ -46,6 +47,8 @@ export const visualiserEffect: Effect = {
       style === "spectrum" || style === "spectrogram" ? ctx.width : num(params, "bands");
     const level = new Float32Array(bandCount);
     const peak = new Float32Array(bandCount);
+    // Bars rise from the panel's real bottom edge in each column (it is slanted by the cut).
+    const bottoms = columnBottoms(ctx.visible, ctx.width, ctx.height);
     return {
       render(_t, c) {
         if (style === "waveform") {
@@ -75,16 +78,16 @@ export const visualiserEffect: Effect = {
         c.clear();
         const colW = c.width / bandCount;
         for (let i = 0; i < bandCount; i++) {
-          const h = level[i]! * c.height;
           const x0 = Math.floor(i * colW);
           const w =
             style === "bars" ? Math.max(1, Math.floor(colW) - 1) : Math.max(1, Math.ceil(colW));
+          const base = Math.max(0, bottoms[Math.min(c.width - 1, x0 + Math.floor(w / 2))]!) + 1;
+          const h = level[i]! * base;
           if (mirror) {
-            c.rect(x0, (c.height - h) / 2, w, h, 255);
+            c.rect(x0, (base - h) / 2, w, h, 255);
           } else {
-            c.rect(x0, c.height - h, w, h, 255);
-            if (peaksOn && style === "bars")
-              c.rect(x0, c.height - 1 - peak[i]! * c.height, w, 1, 140);
+            c.rect(x0, base - h, w, h, 255);
+            if (peaksOn && style === "bars") c.rect(x0, base - 1 - peak[i]! * base, w, 1, 140);
           }
         }
       },

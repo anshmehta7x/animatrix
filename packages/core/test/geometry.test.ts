@@ -134,3 +134,23 @@ describe("Mapper", () => {
     expect(Math.max(...frame)).toBe(254);
   });
 });
+
+describe("safe area", () => {
+  it("finds a fully visible rectangle away from the cut corner", async () => {
+    const { largestRect } = await import("../src/index.js");
+    const m = new Mapper(GA402);
+    const r = m.safeArea();
+    const cov = m.coverage();
+    expect(r.width * r.height).toBeGreaterThan(800);
+    for (let y = r.y; y < r.y + r.height; y++)
+      for (let x = r.x; x < r.x + r.width; x++) expect(cov[y * m.width + x]).toBe(1);
+    // bottom-left corner is in the cut
+    expect(cov[(m.height - 1) * m.width]).toBe(0);
+    expect(largestRect(Uint8Array.from([1, 1, 0, 1, 1, 1]), 3, 2)).toEqual({
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 2,
+    });
+  });
+});

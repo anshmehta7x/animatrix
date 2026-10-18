@@ -1,3 +1,4 @@
+import { bandLeft, centreIn, clipLeft } from "../layout.js";
 import { FONT_PARAMS, MAPPING_PARAM, bool, num } from "../params.js";
 import type { NowPlaying } from "../services/index.js";
 import { TextWriter, fontFromParams } from "../text/writer.js";
@@ -44,13 +45,15 @@ export const nowPlayingEffect: Effect = {
         if (!text || (pausedHide && !np?.playing)) return;
         const w = writer.measure(text);
         if (w === null) return { changed: false };
-        const y = Math.round((c.height - writer.height) / 2);
-        if (w <= c.width) {
-          writer.draw(c, Math.round((c.width - w) / 2), y, text);
+        const pos = centreIn(ctx.safe, c, w, writer.height);
+        if (w <= ctx.safe.width) {
+          writer.draw(c, pos.x, pos.y, text);
           return;
         }
-        const off = (((t - since) / 1000) * speed) % (w + c.width);
-        writer.draw(c, Math.round(c.width - off), y, text);
+        const left = bandLeft(ctx.visible, c.width, pos.y, writer.height);
+        const off = (((t - since) / 1000) * speed) % (w + c.width - left);
+        writer.draw(c, Math.round(c.width - off), pos.y, text);
+        clipLeft(c, left, pos.y, writer.height);
       },
       dispose: unsub,
     };

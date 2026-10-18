@@ -1,3 +1,4 @@
+import { bandLeft, centreIn, clipLeft } from "../layout.js";
 import { FONT_PARAMS, MAPPING_PARAM, bool, num, str } from "../params.js";
 import { TextWriter, fontFromParams } from "../text/writer.js";
 import type { Effect } from "../types.js";
@@ -26,7 +27,7 @@ export const textEffect: Effect = {
     value: { type: "number", label: "Brightness", min: 8, max: 255, step: 1, default: 255 },
     ...MAPPING_PARAM,
   },
-  async create(params) {
+  async create(params, ctx) {
     const text = str(params, "text");
     const writer = new TextWriter(fontFromParams(params));
     await writer.prepare(text);
@@ -34,19 +35,22 @@ export const textEffect: Effect = {
     const speed = num(params, "speed");
     const dir = str(params, "direction") === "right" ? -1 : 1;
     const value = num(params, "value");
+    const r = ctx.safe;
     return {
       render(t, canvas) {
         canvas.clear();
         const w = writer.measure(text) ?? 0;
-        const y = Math.round((canvas.height - writer.height) / 2);
+        const pos = centreIn(r, canvas, w, writer.height);
         if (!scroll) {
-          writer.draw(canvas, Math.round((canvas.width - w) / 2), y, text, value);
+          writer.draw(canvas, pos.x, pos.y, text, value);
           return { done: true };
         }
-        const span = w + canvas.width;
+        const left = bandLeft(ctx.visible, canvas.width, pos.y, writer.height);
+        const span = w + canvas.width - left;
         const off = ((t / 1000) * speed) % span;
-        const x = dir > 0 ? canvas.width - off : off - w;
-        writer.draw(canvas, Math.round(x), y, text, value);
+        const x = dir > 0 ? canvas.width - off : left + off - w;
+        writer.draw(canvas, Math.round(x), pos.y, text, value);
+        clipLeft(canvas, left, pos.y, writer.height);
       },
     };
   },

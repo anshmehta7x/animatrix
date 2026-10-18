@@ -93,6 +93,8 @@ export class Runner {
         width: mapper.width,
         height: mapper.height,
         mode,
+        safe: mapper.safeArea(),
+        visible: mapper.coverage(),
         profile: opts.profile,
         services: opts.services,
       });

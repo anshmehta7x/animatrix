@@ -24,6 +24,8 @@ describe("effect smoke test", () => {
           width: mapper.width,
           height: mapper.height,
           mode,
+          safe: mapper.safeArea(),
+          visible: mapper.coverage(),
           profile: GA402,
           services,
         });

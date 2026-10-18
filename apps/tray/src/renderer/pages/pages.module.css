@@ -1,0 +1,73 @@
+.listRow {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.groupRow + .groupRow,
+.listRow + .listRow,
+.sceneRow + .sceneRow {
+  border-top: 1px solid var(--hairline);
+}
+
+.listText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.listSub {
+  overflow: hidden;
+  font-size: var(--text-xs);
+  color: var(--text-2);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.check {
+  flex: none;
+  color: var(--accent);
+}
+
+.sceneRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: var(--hairline);
+  color: var(--danger);
+}
+
+.empty {
+  padding: 12px 0;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+
+.gap {
+  width: 8px;
+}

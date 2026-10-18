@@ -82,6 +82,40 @@ export class Mapper {
     return frame;
   }
 
+  /**
+   * Which canvas pixels reach at least one LED. Pixels outside (e.g. in the diagonal cut) are
+   * never visible.
+   */
+  coverage(): Uint8Array {
+    const mask = new Uint8Array(this.width * this.height);
+    for (const idx of this.samples) if (idx >= 0) mask[idx] = 1;
+    if (this.mode === "planar") {
+      // Supersample points are sparse vertically; fill each column between covered pixels.
+      for (let x = 0; x < this.width; x++) {
+        let first = -1;
+        let last = -1;
+        for (let y = 0; y < this.height; y++) {
+          if (mask[y * this.width + x]) {
+            if (first < 0) first = y;
+            last = y;
+          }
+        }
+        for (let y = first; y >= 0 && y <= last; y++) mask[y * this.width + x] = 1;
+      }
+    }
+    return mask;
+  }
+
+  /**
+   * The largest axis-aligned rectangle of fully visible canvas pixels. Text and meters should
+   * be laid out inside it so nothing falls into the panel's cut corner.
+   */
+  safeArea(): Rect {
+    return (this.safe ??= largestRect(this.coverage(), this.width, this.height));
+  }
+
+  private safe: Rect | undefined;
+
   /** Canvas position of each LED's centre (for previews and tests), in LED order. */
   ledCentres(): { x: number; y: number }[] {
     if (this.mode === "diagonal") {
@@ -97,6 +131,38 @@ export class Mapper {
       y: (l.yCm + pitchCm.y / 2) / sy,
     }));
   }
+}
+
+/** An axis-aligned rectangle in canvas pixels. */
+export interface Rect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Largest rectangle of 1s in a binary mask (histogram / stack method). */
+export function largestRect(mask: Uint8Array, w: number, h: number): Rect {
+  const heights = new Array<number>(w).fill(0);
+  let best: Rect = { x: 0, y: 0, width: 0, height: 0 };
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) heights[x] = mask[y * w + x] ? heights[x]! + 1 : 0;
+    const stack: number[] = [];
+    for (let x = 0; x <= w; x++) {
+      const cur = x === w ? 0 : heights[x]!;
+      while (stack.length && heights[stack[stack.length - 1]!]! >= cur) {
+        const top = stack.pop()!;
+        const height = heights[top]!;
+        const left = stack.length ? stack[stack.length - 1]! + 1 : 0;
+        const width = x - left;
+        if (width * height > best.width * best.height) {
+          best = { x: left, y: y - height + 1, width, height };
+        }
+      }
+      stack.push(x);
+    }
+  }
+  return best;
 }
 
 function planarScale(lattice: Lattice, w: number, h: number): { sx: number; sy: number } {
