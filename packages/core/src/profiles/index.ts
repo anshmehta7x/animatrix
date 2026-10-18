@@ -11,7 +11,7 @@ export const PROFILES: readonly ModelProfile[] = [GA402, GA401, GU604];
 
 /**
  * Models that share USB ID 0b05:193b (or 0b05:19b6) but carry Slash Lighting instead of a dot
- * matrix. Driving them with AniMe frames is wrong, so they are refused (research doc §2.1).
+ * matrix. Driving them with AniMe frames is wrong, so they are refused.
  */
 export const SLASH_MODELS: readonly string[] = [
   "GA403",

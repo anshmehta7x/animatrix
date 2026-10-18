@@ -10,15 +10,25 @@ Control the **ASUS ROG AniMe Matrix** lid display on Linux: images, GIFs, video,
 | Model                                          | Status                                                                                                                                                                   |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Zephyrus G14 2022/2023 (GA402R/X/N)            | **Tested on a GA402XU** for the transport, frame timing, daemon, CLI and tray. Orientation and brightness confirmed by eye; see [hardware notes](docs/hardware-notes.md) |
-| Zephyrus G14 2020/21 (GA401), G16 2023 (GU604) | Profiles from research, **untested**                                                                                                                                     |
+| Zephyrus G14 2020/21 (GA401), G16 2023 (GU604) | Profiles from G-Helper and asusctl data, **untested**                                                                                                                    |
 | Slash Lighting laptops (GA403, GU605, …)       | Refused: same USB ID, different hardware                                                                                                                                 |
 
 ## Install
 
-You need Node.js ≥ 22, pnpm (`corepack enable`) and ffmpeg (for video). PipeWire's `pw-record` or PulseAudio's `parec` is needed for the visualiser.
+```sh
+curl -fsSL https://raw.githubusercontent.com/anshmehta7x/animatrix/main/install.sh | bash
+```
+
+This downloads a self-contained release (it bundles its own Node.js and Electron) into `~/.local`, and asks for your password once to install the udev rule. It then starts the `animatrixd` user service and adds the tray to your login items. Run the same line again to update. To remove everything, run `~/.local/lib/animatrix/uninstall.sh` (add `--purge` to delete your config too).
+
+Video playback needs `ffmpeg`. The visualiser needs PipeWire's `pw-record` or PulseAudio's `parec`. Most desktops already have both.
+
+### Build from source
+
+You need Node.js ≥ 22, pnpm (`corepack enable`) and ffmpeg (for video). The visualiser needs PipeWire's `pw-record` or PulseAudio's `parec`.
 
 ```sh
-git clone git@github.com:anshmehta7x/animatrix.git && cd animatrix
+git clone https://github.com/anshmehta7x/animatrix.git && cd animatrix
 make install            # builds and installs to ~/.local (no root)
 sudo make install-udev  # once: lets your user open the device
 make enable             # start animatrixd now and at every login
@@ -108,7 +118,7 @@ Through the daemon, effects keep running after your script exits. In direct mode
 
 - [Architecture](docs/architecture.md)
 - [Protocol summary](docs/protocol.md)
-- [Hardware notes / Phase 0 findings](docs/hardware-notes.md)
+- [Hardware notes](docs/hardware-notes.md)
 - [D-Bus API](docs/dbus-api.md)
 - [Packaging for distros](docs/packaging.md)
 - [Contributing: add an effect or a model](CONTRIBUTING.md)

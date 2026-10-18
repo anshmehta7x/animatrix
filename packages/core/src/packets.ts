@@ -1,6 +1,6 @@
 /**
  * Wire encoding. Every packet is a 640-byte HID feature report whose first byte is the report ID
- * `0x5E`. Only the opcodes documented in research doc §2.3 are produced here.
+ * `0x5E`. Only the opcodes listed in docs/protocol.md are produced here.
  */
 import { encodeBuiltins, type BuiltinSelection } from "./builtins.js";
 import { InvalidArgumentError } from "./errors.js";
@@ -78,8 +78,8 @@ export function panePacket(frame: Uint8Array, start: number, length: number): Ui
 /** Options for {@link encodeFrame}. */
 export interface EncodeOptions {
   /**
-   * Previous frame. When given, panes whose bytes are identical are skipped. UNVERIFIED that the
-   * firmware keeps untouched panes between flushes, so callers keep this off by default.
+   * Previous frame. When given, panes whose bytes are identical are skipped. It is not known
+   * whether the firmware keeps untouched panes between flushes, so callers keep this off.
    */
   previous?: Uint8Array | null;
 }

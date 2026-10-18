@@ -1,6 +1,6 @@
 /**
  * Firmware built-in animations. The panel stores one bit per power state in the `C5` command
- * and plays the chosen animation by itself (research doc §2.3).
+ * and plays the chosen animation by itself (see docs/protocol.md).
  */
 
 /** Animation while the laptop is running (bit 0). */

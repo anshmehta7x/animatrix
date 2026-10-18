@@ -1,6 +1,6 @@
 /**
  * Direct protocol driver. Owns a transport and tracks the panel's mode so that mode packets are
- * sent once per session, not per frame (toggling `C4` flickers, research doc §8).
+ * sent once per session, not per frame (toggling `C4` clears the panel and flickers).
  */
 import {
   DEFAULT_BUILTINS,
@@ -35,8 +35,8 @@ export interface DeviceOptions {
   /** Skip the asusd check. */
   ignoreAsusd?: boolean;
   /**
-   * Skip pane bytes that did not change since the last frame. UNVERIFIED that the firmware keeps
-   * untouched panes, so this is off by default.
+   * Skip pane bytes that did not change since the last frame. Off by default: it is not
+   * known whether the firmware keeps untouched panes between flushes.
    */
   skipUnchangedPanes?: boolean;
 }
@@ -177,8 +177,8 @@ export class AnimeDevice {
   }
 
   /**
-   * Re-send the handshake and restore mode/brightness/display, e.g. after resume. Whether the
-   * firmware needs this after s2idle is unverified, so the daemon always does it.
+   * Re-send the handshake and restore mode/brightness/display, e.g. after resume. The daemon
+   * always does this on resume; it is cheap and works whether or not the firmware forgot.
    */
   async reinit(): Promise<void> {
     const wasBuiltin = this.mode === "builtin";

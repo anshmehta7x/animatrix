@@ -75,7 +75,7 @@ Scripts can also run an effect without registering it: `await matrix.run(myEffec
 3. Add tests in `packages/core/test/geometry.test.ts`: the LED total against the vendor figure, the row starts, and golden pane headers.
 4. On hardware:
    - run `animatrix --direct --model <id> test-pattern` and fix `orientation`
-   - measure fps with `scripts/phase0-spike.ts`, which needs adapting
+   - measure timing with `scripts/hw-check.ts bench` (its geometry constants are GA402's; adapt them)
    - record the results in `docs/hardware-notes.md`
    - set `tested: true` only after that
 

@@ -1,12 +1,8 @@
 animatrix — provenance notice
 
-All code in this repository was written from scratch (clean-room with respect to code). No
-source code was copied or ported from the projects below. Their source files were read for
-protocol facts only: byte values, packet layouts, the C5 bit layout and per-row LED geometry
-formulas, which are not copyrightable expression. Most facts were taken from the research
-write-up `anime-matrix-research.md` (a separate, private repo), which cites each one. Some were
-read directly from the files named below to confirm details (G-Helper's AnimeMatrixDevice.cs
-geometry and BuiltInAnimation bits; asusctl's rog-anime image.rs row formulas and pitch values).
+All code in this repository was written from scratch. No source code was copied or ported from
+the projects below. Their source files were read for protocol facts only: byte values, packet
+layouts, the C5 bit layout and per-row LED geometry. These facts are not copyrightable expression.
 
 - G-Helper (seerge/g-helper), GPL-3.0 — app/AnimeMatrix/*: opcodes, per-row geometry
   formulas, C5 built-in bit layout, planar/diagonal mapping idea.

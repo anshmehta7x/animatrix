@@ -1,6 +1,10 @@
-// Phase 0 spike: prove hidraw HIDIOCSFEATURE works for the AniMe Matrix (GA402).
-// Throwaway hardware check, kept for reference. Run: node scripts/phase0-spike.ts [pattern|bench|levels]
-// Uses only documented opcodes (research doc §2.3).
+// Low-level GA402 hardware check: writes straight to the device over hidraw, bypassing the
+// library. Stop animatrixd first (systemctl --user stop animatrixd).
+//
+//   node scripts/hw-check.ts pattern     row-0/col-0 marker, row outline, an "F" (wire coordinates)
+//   node scripts/hw-check.ts levels      254 vs 255 halves and a 0-15 brightness ramp
+//   node scripts/hw-check.ts brightness  steps hardware brightness 0..3
+//   node scripts/hw-check.ts bench       measures per-report time and full-frame fps
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);

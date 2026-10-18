@@ -28,7 +28,7 @@ describe("profiles", () => {
     for (const p of PROFILES) expect(wireLength(p)).toBeGreaterThanOrEqual(slotCount(p));
   });
 
-  it("GA402 row starts match the research table", () => {
+  it("GA402 row starts match the reference table", () => {
     const l = new Lattice(GA402);
     expect(l.indexOf(0, 0)).toBe(0);
     expect(l.indexOf(0, 11)).toBe(374);

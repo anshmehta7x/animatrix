@@ -118,7 +118,7 @@ const handlers: {
           ? resolve()
           : reject(
               new Error(
-                "systemctl --user start animatrixd failed. Is the user unit installed? Run make install.",
+                "systemctl --user start animatrixd failed. Is animatrix installed? Re-run the installer.",
               ),
             ),
       );

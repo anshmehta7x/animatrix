@@ -1,4 +1,3 @@
-# Maintainer: Ansh Mehta <anshkapilmehta@gmail.com>
 # Sketch for an AUR -git package. Untested on Arch.
 pkgname=animatrix-git
 pkgver=0.1.0

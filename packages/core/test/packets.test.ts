@@ -81,7 +81,7 @@ describe("packets", () => {
 });
 
 describe("encodeFrame (golden bytes)", () => {
-  it("GA402: three 627-byte panes with research-doc headers, then flush", () => {
+  it("GA402: three 627-byte panes with the known headers, then flush", () => {
     const frame = latticeFor(GA402).createFrame();
     frame[0] = 1;
     frame[1448] = 9;
