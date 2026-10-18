@@ -90,7 +90,7 @@ transfers run off the event loop. Skipping unchanged panes (`skipUnchangedPanes`
 sparse updates, but it is **off by default**: nobody has checked visually whether the firmware
 keeps untouched panes between flushes.
 
-## 254 vs 255 — pending visual check
+## 254 vs 255 — verified: 255 is safe
 
 `node scripts/phase0-spike.ts levels` lights the top 8 rows at 254 on the left half and 255 on the
 right half, plus a 0–15 ramp. The firmware accepted both values without error. Whether they look
@@ -166,4 +166,5 @@ systemctl --user start animatrixd
   rows are offset by half a pitch, so straight buffer columns zig-zag on the lid. Use content
   through the mapping (the clock, text, `animatrix draw`) to judge shapes.
 - Brightness levels 0–3 work.
-- Still unconfirmed: 254 vs 255, the lowest visible level, and suspend/resume.
+- 254 and 255 look identical, so 255 is safe. asusctl's clamp to 254 is unnecessary on GA402XU.
+- Still unconfirmed: the lowest visible level and suspend/resume.
