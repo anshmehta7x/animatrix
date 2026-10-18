@@ -41,6 +41,9 @@ importers:
       '@anshmehta7x/animatrix-core':
         specifier: workspace:*
         version: link:../core
+      '@anshmehta7x/animatrix-effects':
+        specifier: workspace:*
+        version: link:../effects
       dbus-next:
         specifier: ^0.10.2
         version: 0.10.2
@@ -48,8 +51,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       usb:
-        specifier: ^3.2.1
-        version: 3.2.1
+        specifier: ^2.19.1
+        version: 2.19.1
 
   packages/cli: {}
 
@@ -322,70 +325,6 @@ packages:
 
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
-
-  '@node-usb/usb-darwin-arm64@3.2.1':
-    resolution: {integrity: sha512-t4IzR3en2dRLaY7aFrzmTBywtsQkVOEiLvNAoqMVag7JrsRu9iYPKYwBnudQ7vDvuPnhMxv6r4PqJD6EBC4sEA==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@node-usb/usb-darwin-x64@3.2.1':
-    resolution: {integrity: sha512-rgDmI5d7BeEs3tAv5XppJ8wi7Ft4afqVL06MIPKOsZHtR38NQhwWIzr3rXkkh2I6e05wuuPRQ3ApeGcbQQxSHA==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@node-usb/usb-linux-arm-gnueabihf@3.2.1':
-    resolution: {integrity: sha512-EMp0j3089f0TPV5pRCE7fNey9678fJ7ep7SsRBq6JQ8dU+Ow2x1cH2H3GMiXf9ibbyygCtxDy10PbllizJGZEw==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [arm]
-    os: [linux]
-
-  '@node-usb/usb-linux-arm64-gnu@3.2.1':
-    resolution: {integrity: sha512-Va2Pu+CAfnLFI1RzfABPZHKAAkOnvrZ2jjWSabG3RgIAONOAWA7m/t0xBHnGsb+6l8UD7IcGAHt6UNN9WPNz+g==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@node-usb/usb-linux-arm64-musl@3.2.1':
-    resolution: {integrity: sha512-UrjSpuWSWUL3Bsew/PC9JmyNkNzdW+odMhPLHcGsxRaZ2HiXEK5o3Xax+5X9Tz/V58MqaB3uIJ3/hUr0PkH8WQ==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@node-usb/usb-linux-x64-gnu@3.2.1':
-    resolution: {integrity: sha512-9q4UxzAIwSXCVr/r8Uy6YEMeHh0HymNBs8OEYz/e21bVSYJO01Q79ItZPbXIc3tOApEJ0sUutnZmGgfO03lpyA==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@node-usb/usb-linux-x64-musl@3.2.1':
-    resolution: {integrity: sha512-mMKMRV3+eIBku+JzcWR+LSSWnB3rCvE3ZJQ03K+1ClKL4RlseFy645g6EsubN/5Dfs6pEBT/b7vt+2XODnsuEw==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@node-usb/usb-win32-arm64-msvc@3.2.1':
-    resolution: {integrity: sha512-SBUxcBglxL6sMFc+5UnWaBx8YMdQ1/Tg/PCePwT4c+NSiP+Ee1Ze8cvCPkW5tR5tjLdHc46Si6suweFi5AX+yA==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@node-usb/usb-win32-ia32-msvc@3.2.1':
-    resolution: {integrity: sha512-9yjDIzw0fVTA2MNtd8O8wkBB6aS7ePLRH/kRSCbht+uxGrTnD+X/ZyfjpCibTn6BqK/NSdo6SGqRlYEu5PF6rA==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [ia32]
-    os: [win32]
-
-  '@node-usb/usb-win32-x64-msvc@3.2.1':
-    resolution: {integrity: sha512-yOh9d9ystwKqnkX1feOa+jPu4OxmGLKHoSLoU5iD/ifNLXsQemKiWPchhBguTloXLKHZ6HiGRhgAoR6FGTc7OQ==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
-    cpu: [x64]
-    os: [win32]
 
   '@nornagon/put@0.0.8':
     resolution: {integrity: sha512-ugvXJjwF5ldtUpa7D95kruNJ41yFQDEKyF5CW4TgKJnh+W/zmlBzXXeKTyqIgwMFrkePN2JqOBqcF0M0oOunow==}
@@ -1156,6 +1095,10 @@ packages:
     resolution: {integrity: sha512-VijLXbi3UACN69I0JVXJsX4tjACjNoQDgv2gTF6sx2wWEi8tkSg2eX8p5gSIFi8z2+DL3oHmY6OyKce38SDolg==}
     engines: {node: ^18 || ^20 || >= 21}
 
+  node-gyp-build@4.8.4:
+    resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
+    hasBin: true
+
   node-gyp@7.1.2:
     resolution: {integrity: sha512-CbpcIo7C3eMu3dL1c3d0xw449fHIGALIJsRP4DDPHpyiW8vcriNY7ubh9TE4zEKfSxscY7PjeFnshE7h75ynjQ==}
     engines: {node: '>= 10.12.0'}
@@ -1429,9 +1372,9 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  usb@3.2.1:
-    resolution: {integrity: sha512-A/H2ImRjhEYz3V3EpidTkpdQnVW2iBH1GNaAZjF01O2Upz3aGbI+1cV0el49sF7931xOU4hB6fcNO6/YN+/POg==}
-    engines: {node: '>= 12.22.0 < 13 || >= 14.17.0 < 15 || >= 15.12.0 < 16 || >= 16.0.0'}
+  usb@2.19.1:
+    resolution: {integrity: sha512-fjVddzu00GFc1Z5fd5+zuZrqylsfuBbmKKygx3rbIS9w5Nh3ddGVWDHkPBQ/BbB3PVEp6kdsZfX9WXhlsRdPDQ==}
+    engines: {node: '>=12.22.0 <13.0 || >=14.17.0'}
 
   usocket@0.3.0:
     resolution: {integrity: sha512-V/H02RNiaOCJZuPoKont/y12VJaImC6C5xW7OzPFjYu9qnig0yv9hyp9E7Wqjm6d8yZuZouH3NAfDATVMgh2SQ==}
@@ -1771,36 +1714,6 @@ snapshots:
       keyv: 5.6.0
 
   '@keyv/serialize@1.1.1': {}
-
-  '@node-usb/usb-darwin-arm64@3.2.1':
-    optional: true
-
-  '@node-usb/usb-darwin-x64@3.2.1':
-    optional: true
-
-  '@node-usb/usb-linux-arm-gnueabihf@3.2.1':
-    optional: true
-
-  '@node-usb/usb-linux-arm64-gnu@3.2.1':
-    optional: true
-
-  '@node-usb/usb-linux-arm64-musl@3.2.1':
-    optional: true
-
-  '@node-usb/usb-linux-x64-gnu@3.2.1':
-    optional: true
-
-  '@node-usb/usb-linux-x64-musl@3.2.1':
-    optional: true
-
-  '@node-usb/usb-win32-arm64-msvc@3.2.1':
-    optional: true
-
-  '@node-usb/usb-win32-ia32-msvc@3.2.1':
-    optional: true
-
-  '@node-usb/usb-win32-x64-msvc@3.2.1':
-    optional: true
 
   '@nornagon/put@0.0.8': {}
 
@@ -2560,6 +2473,8 @@ snapshots:
 
   node-addon-api@8.9.2: {}
 
+  node-gyp-build@4.8.4: {}
+
   node-gyp@7.1.2:
     dependencies:
       env-paths: 2.2.1
@@ -2910,20 +2825,11 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  usb@3.2.1:
+  usb@2.19.1:
     dependencies:
       '@types/w3c-web-usb': 1.0.14
-    optionalDependencies:
-      '@node-usb/usb-darwin-arm64': 3.2.1
-      '@node-usb/usb-darwin-x64': 3.2.1
-      '@node-usb/usb-linux-arm-gnueabihf': 3.2.1
-      '@node-usb/usb-linux-arm64-gnu': 3.2.1
-      '@node-usb/usb-linux-arm64-musl': 3.2.1
-      '@node-usb/usb-linux-x64-gnu': 3.2.1
-      '@node-usb/usb-linux-x64-musl': 3.2.1
-      '@node-usb/usb-win32-arm64-msvc': 3.2.1
-      '@node-usb/usb-win32-ia32-msvc': 3.2.1
-      '@node-usb/usb-win32-x64-msvc': 3.2.1
+      node-addon-api: 8.9.2
+      node-gyp-build: 4.8.4
 
   usocket@0.3.0:
     dependencies:

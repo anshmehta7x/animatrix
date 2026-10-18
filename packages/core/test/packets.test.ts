@@ -121,3 +121,14 @@ describe("encodeFrame (golden bytes)", () => {
     expect(() => encodeFrame(GA402, new Uint8Array(10))).toThrow(InvalidArgumentError);
   });
 });
+
+describe("testPatternFrame", () => {
+  it("lights the row-0/col-0 block and stays inside the lattice", async () => {
+    const { testPatternFrame } = await import("../src/index.js");
+    const f = testPatternFrame(GA402);
+    expect(f.length).toBe(1449);
+    expect(f[0]).toBe(255);
+    expect(f[3]).toBe(255);
+    expect(f[4]).not.toBe(255);
+  });
+});
