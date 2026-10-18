@@ -6,7 +6,16 @@
 import type { Config } from "./config.js";
 import type { Content, Controller } from "./controller.js";
 import type { Logger } from "./log.js";
-import type { PowerMonitor } from "./power.js";
+import type { PowerEvents } from "./power.js";
+
+/** What the policy needs from a power monitor (PowerMonitor, or a fake in tests). */
+export interface PowerSource {
+  readonly onBattery: boolean;
+  readonly lidClosed: boolean;
+  on<K extends keyof PowerEvents>(event: K, fn: (...args: PowerEvents[K]) => void): unknown;
+  releaseInhibitor(): Promise<void>;
+  takeInhibitor(): Promise<void>;
+}
 
 /** Minutes since midnight for "HH:MM", or null if malformed. */
 export function parseHm(hm: string): number | null {
@@ -36,7 +45,7 @@ export class Policy {
 
   constructor(
     private readonly ctl: Controller,
-    private readonly power: PowerMonitor | null,
+    private readonly power: PowerSource | null,
     private readonly log: Logger,
   ) {}
 

@@ -51,7 +51,8 @@ install: build
 	$(SUBST) packaging/desktop/animatrix.desktop.in > "$(DESTDIR)$(DATADIR)/applications/animatrix.desktop"
 	install -m 644 apps/tray/assets/icon-256.png "$(DESTDIR)$(DATADIR)/icons/hicolor/256x256/apps/animatrix.png"
 	install -m 644 apps/tray/assets/icon.svg "$(DESTDIR)$(DATADIR)/icons/hicolor/scalable/apps/animatrix.svg"
-	@if [ -z "$(DESTDIR)" ]; then systemctl --user daemon-reload || true; fi
+	@if [ -z "$(DESTDIR)" ]; then systemctl --user daemon-reload || true; \
+	  systemctl --user try-restart animatrixd || true; fi
 	@echo
 	@echo "Installed. Next steps:"
 	@echo "  sudo make install-udev     # once, for device access"

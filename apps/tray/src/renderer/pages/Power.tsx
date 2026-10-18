@@ -31,7 +31,10 @@ export function PowerPage(): ReactNode {
             onChange={(v) => set({ power: { offOnBattery: v } })}
           />
         </Row>
-        <Row label="Off when the lid is closed">
+        <Row
+          label="Off when the lid is closed"
+          hint="Also hides the sleep animation when you close the lid"
+        >
           <Toggle
             label="Off when the lid is closed"
             checked={p.offOnLidClose}

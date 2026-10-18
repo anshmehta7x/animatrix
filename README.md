@@ -7,11 +7,11 @@ Control the **ASUS ROG AniMe Matrix** lid display on Linux: images, GIFs, video,
 - **`animatrix`**: a command-line tool.
 - **`@anshmehta7x/animatrix`**: a TypeScript library for your own scripts.
 
-| Model                                          | Status                                                                                                                                                         |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Zephyrus G14 2022/2023 (GA402R/X/N)            | **Tested** on a GA402XU: hidraw transport and frame timing verified; lid orientation still to be confirmed visually ([hardware notes](docs/hardware-notes.md)) |
-| Zephyrus G14 2020/21 (GA401), G16 2023 (GU604) | Profiles from research, **untested**                                                                                                                           |
-| Slash Lighting laptops (GA403, GU605, …)       | Refused: same USB ID, different hardware                                                                                                                       |
+| Model                                          | Status                                                                                                                                                                                                                 |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zephyrus G14 2022/2023 (GA402R/X/N)            | **Tested on a GA402XU** for the transport, frame timing, daemon, CLI and tray. **What the lid actually shows has not been checked by eye yet** (orientation, legibility); see [hardware notes](docs/hardware-notes.md) |
+| Zephyrus G14 2020/21 (GA401), G16 2023 (GU604) | Profiles from research, **untested**                                                                                                                                                                                   |
+| Slash Lighting laptops (GA403, GU605, …)       | Refused: same USB ID, different hardware                                                                                                                                                                               |
 
 ## Install
 

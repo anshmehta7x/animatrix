@@ -60,7 +60,7 @@ export function defaultConfig(): Config {
     device: { model: "", hardwareBrightness: 2, softBrightness: 1, gamma: 1, maxFps: 30 },
     power: {
       offOnBattery: false,
-      offOnLidClose: true,
+      offOnLidClose: false,
       onSuspend: "builtins",
       onShutdown: "builtins",
       sleepScene: "",
@@ -80,7 +80,7 @@ export function defaultConfig(): Config {
     playlist: { enabled: false, scenes: ["Clock", "Matrix rain", "Starfield"], intervalSec: 300 },
     schedule: { enabled: false, dimFrom: "22:00", dimTo: "07:00", dimBrightness: 0.3 },
     notifications: { flash: false, showText: false },
-    ui: { closeOnBlur: true, trayHintShown: false, autostart: false },
+    ui: { closeOnBlur: false, trayHintShown: false, autostart: false },
   };
 }
 

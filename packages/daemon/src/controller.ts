@@ -9,21 +9,17 @@ import {
   InvalidArgumentError,
   scaleFrame,
   slotCount,
-  toAnimatrixError,
   type BuiltinSelection,
   type HardwareBrightness,
 } from "@anshmehta7x/animatrix-core";
 import type { AnimeDevice, DaemonState, GateReason } from "@anshmehta7x/animatrix";
 import { Runner, type EffectRegistry, type Services } from "@anshmehta7x/animatrix-effects";
 import type { Config } from "./config.js";
+import { GATE_ORDER, snapshot, startupContent, type Content, type GateKey } from "./content.js";
+import { DeviceSlot } from "./device-slot.js";
 import type { Logger } from "./log.js";
 
-/** What should be on the panel when it is not gated. */
-export type Content =
-  | { kind: "idle" }
-  | { kind: "builtins" }
-  | { kind: "frame"; frame: Uint8Array }
-  | { kind: "effect"; effect: string; params: Record<string, unknown>; scene: string | null };
+export type { Content } from "./content.js";
 
 export interface ControllerDeps {
   openDevice: () => Promise<AnimeDevice>;
@@ -36,9 +32,6 @@ export interface ControllerDeps {
   retryMs?: number;
 }
 
-type GateKey = Exclude<GateReason, null>;
-const GATE_ORDER: GateKey[] = ["sleep", "lid", "battery", "user"];
-
 export interface ControllerEvents {
   state: [DaemonState];
   frame: [Uint8Array];
@@ -46,93 +39,48 @@ export interface ControllerEvents {
 
 export class Controller extends EventEmitter<ControllerEvents> {
   config: Config;
-  private device: AnimeDevice | null = null;
+  private readonly slot: DeviceSlot;
   private runner: Runner | null = null;
   private content: Content = { kind: "idle" };
   private readonly gates = new Set<GateKey>();
   private dim = 1;
   private lastRaw: Uint8Array | null = null;
   private lastOut: Uint8Array | null = null;
-  private error: string | null = null;
-  private retry: NodeJS.Timeout | null = null;
   private applying: Promise<void> = Promise.resolve();
-  private stopped = false;
-  private lastLogged: string | null = null;
 
   constructor(private readonly deps: ControllerDeps) {
     super();
     this.config = deps.config;
+    this.slot = new DeviceSlot(
+      deps.openDevice,
+      deps.log,
+      {
+        connected: async (dev) => {
+          await dev.setHardwareBrightness(this.config.device.hardwareBrightness);
+          await this.reapply();
+        },
+        dropping: async () => {
+          await this.runner?.stop();
+          this.runner = null;
+        },
+        changed: () => this.emitState(),
+      },
+      deps.retryMs,
+    );
+  }
+
+  private get device(): AnimeDevice | null {
+    return this.slot.device;
   }
 
   /** Connect and show the startup scene (or keep retrying until the device appears). */
   async start(): Promise<void> {
-    const startup = this.config.scenes[this.config.startupScene];
-    this.content = startup
-      ? {
-          kind: "effect",
-          effect: startup.effect,
-          params: startup.params,
-          scene: this.config.startupScene,
-        }
-      : { kind: "builtins" };
-    await this.connect();
+    this.content = startupContent(this.config);
+    await this.slot.connect();
   }
 
-  private async connect(): Promise<void> {
-    if (this.stopped || this.device) return;
-    let dev: AnimeDevice | null = null;
-    try {
-      dev = await this.deps.openDevice();
-      await dev.setHardwareBrightness(this.config.device.hardwareBrightness);
-      this.device = dev;
-      this.error = null;
-      this.lastLogged = null;
-      this.deps.log.info("device connected", {
-        model: dev.profile.id,
-        transport: dev.transport.kind,
-      });
-      await this.reapply();
-    } catch (err) {
-      await dev?.close().catch(() => undefined);
-      this.device = null;
-      const e = toAnimatrixError(
-        err,
-        (c) => new AnimatrixError("TRANSPORT_FAILED", "open failed", null, c),
-      );
-      this.error = e.hint ? `${e.message}. ${e.hint}` : e.message;
-      if (this.error !== this.lastLogged) {
-        this.deps.log.warn("device unavailable", { code: e.code, message: e.message });
-        this.lastLogged = this.error;
-      }
-      // An unsupported model will not fix itself; everything else (missing node, permissions
-      // not yet applied, device mid-resume) is retried.
-      if (e.code !== "UNSUPPORTED_MODEL") this.scheduleRetry();
-    }
-    this.emitState();
-  }
-
-  private scheduleRetry(): void {
-    if (this.retry || this.stopped) return;
-    this.retry = setTimeout(() => {
-      this.retry = null;
-      void this.connect();
-    }, this.deps.retryMs ?? 5000);
-  }
-
-  private async lostDevice(err: unknown): Promise<void> {
-    const e = toAnimatrixError(
-      err,
-      (c) => new AnimatrixError("TRANSPORT_FAILED", "write failed", null, c),
-    );
-    this.deps.log.error(e, { code: e.code });
-    await this.runner?.stop();
-    this.runner = null;
-    const dev = this.device;
-    this.device = null;
-    await dev?.close().catch(() => undefined);
-    this.error = e.message;
-    this.emitState();
-    this.scheduleRetry();
+  private lostDevice(err: unknown): Promise<void> {
+    return this.slot.lost(err);
   }
 
   /** Serialise content changes so rapid UI clicks never interleave. */
@@ -325,7 +273,7 @@ export class Controller extends EventEmitter<ControllerEvents> {
   /** Re-handshake after resume. */
   async reinit(): Promise<void> {
     await this.serial(async () => {
-      if (!this.device) return void (await this.connect());
+      if (!this.device) return void (await this.slot.connect());
       try {
         await this.device.reinit();
         await this.reapply();
@@ -342,21 +290,15 @@ export class Controller extends EventEmitter<ControllerEvents> {
 
   /** Snapshot for D-Bus. */
   state(): DaemonState {
-    const c = this.content;
-    return {
+    return snapshot({
+      content: this.content,
+      config: this.config,
       connected: this.device !== null,
       displayOn: this.device?.isDisplayOn ?? false,
       gate: this.gate,
-      hardwareBrightness: this.config.device.hardwareBrightness,
-      softBrightness: this.config.device.softBrightness,
-      content: c.kind,
-      effect: c.kind === "effect" ? c.effect : null,
-      params: c.kind === "effect" ? c.params : {},
-      scene: c.kind === "effect" ? c.scene : null,
-      builtins: this.config.builtins,
       fps: this.runner?.fpsCap ?? 0,
-      error: this.error,
-    };
+      error: this.slot.error,
+    });
   }
 
   private emitState(): void {
@@ -365,11 +307,8 @@ export class Controller extends EventEmitter<ControllerEvents> {
 
   /** Stop everything and release the device. */
   async shutdown(): Promise<void> {
-    this.stopped = true;
-    if (this.retry) clearTimeout(this.retry);
     await this.runner?.stop();
     this.runner = null;
-    await this.device?.close();
-    this.device = null;
+    await this.slot.shutdown();
   }
 }

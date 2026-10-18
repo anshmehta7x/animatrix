@@ -62,7 +62,7 @@ describe("config", () => {
       scenes: { A: { effect: "plasma" } },
     });
     expect(next.power.offOnBattery).toBe(true);
-    expect(next.power.offOnLidClose).toBe(true);
+    expect(next.power.offOnLidClose).toBe(false);
     expect(Object.keys(next.scenes)).toEqual(["A"]);
   });
 });

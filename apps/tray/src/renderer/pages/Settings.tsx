@@ -12,7 +12,7 @@ export function SettingsPage(): ReactNode {
   return (
     <>
       <Group title="Panel">
-        <Row label="Hide when I click elsewhere">
+        <Row label="Hide when I click elsewhere" hint="Off lets you drag files in from other apps">
           <Toggle
             label="Hide on focus loss"
             checked={cfg.ui.closeOnBlur}

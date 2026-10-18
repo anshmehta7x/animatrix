@@ -125,6 +125,13 @@ All writes are accepted. The visual result is _pending_.
 - **Visualiser capture follows the default sink.** Tested silently: a null sink was made the
   default during capture and a tone was played into it. Spectrum peak was 0.74 (0.00 before), and
   the original default sink was restored afterwards.
+- **Media and notifications through the installed daemon:** a PNG, an animated GIF (10 fps) and
+  an MP4 (ffmpeg, 20 fps) all played with `error: null`, and video frames kept changing.
+  `animatrix flash` worked. With `notifications.flash` on, `notify-send` triggered a flash through
+  `dbus-monitor` (Fedora's dbus-broker), and the previous content came back afterwards.
+- **Policy logic** (sleep → firmware animation → resume restores content; the lid gate wins over
+  the sleep animation; off on battery) is covered by tests with a fake power monitor. A real
+  suspend has not been tried.
 - **UPower** reports `OnBattery` and `LidIsClosed` on this machine, and **logind** emits
   `PrepareForSleep`. A real suspend/resume cycle has not been exercised yet.
 

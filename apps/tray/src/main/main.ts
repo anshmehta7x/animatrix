@@ -54,6 +54,7 @@ let env: EnvInfo = {
   desktop: process.env.XDG_CURRENT_DESKTOP ?? "",
 };
 let quitting = false;
+let dialogOpen = false;
 
 function snapshot(): Snapshot {
   return {
@@ -125,10 +126,14 @@ const handlers: {
   watchPreview: (on) => link.setPreview(on),
   frame: () => link.need().frame(),
   pickFile: async (accept) => {
-    const res = await dialog.showOpenDialog(panel!, {
-      properties: ["openFile"],
-      filters: [{ name: "Media", extensions: accept }],
-    });
+    // The file chooser takes focus; don't let hide-on-blur close the panel under it.
+    dialogOpen = true;
+    const res = await dialog
+      .showOpenDialog(panel!, {
+        properties: ["openFile"],
+        filters: [{ name: "Media", extensions: accept }],
+      })
+      .finally(() => (dialogOpen = false));
     return res.canceled ? null : (res.filePaths[0] ?? null);
   },
   setAutostart: async (on) => {
@@ -183,8 +188,9 @@ async function boot(): Promise<void> {
     rendererPath(here),
   );
   panel.on("blur", () => {
-    if (link.config?.ui.closeOnBlur !== false && !panel?.webContents.isDevToolsOpened())
+    if (link.config?.ui.closeOnBlur && !dialogOpen && !panel?.webContents.isDevToolsOpened()) {
       togglePanel(false);
+    }
   });
   panel.on("close", (e) => {
     if (!quitting) {
