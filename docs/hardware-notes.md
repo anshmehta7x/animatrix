@@ -167,4 +167,6 @@ systemctl --user start animatrixd
   through the mapping (the clock, text, `animatrix draw`) to judge shapes.
 - Brightness levels 0–3 work.
 - 254 and 255 look identical, so 255 is safe. asusctl's clamp to 254 is unnecessary on GA402XU.
-- Still unconfirmed: the lowest visible level and suspend/resume.
+- Lowest visible level: **3** (the 4th dash) at hardware brightness 3. Values 0–2 are off. vddCore
+  reported 4 as the first visible level, so this panel is one step more sensitive.
+- Still unconfirmed: suspend/resume.
