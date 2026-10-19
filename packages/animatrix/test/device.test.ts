@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { GA402, slotCount } from "@anshmehta7x/animatrix-core";
-import { AnimeDevice, Matrix, MockTransport, UnsupportedModelError } from "../src/index.js";
+import {
+  AnimeDevice,
+  Matrix,
+  MockTransport,
+  UnsupportedModelError,
+  isDaemonRunning,
+} from "../src/index.js";
 
 async function open(): Promise<{ dev: AnimeDevice; mock: MockTransport }> {
   const mock = new MockTransport();
@@ -154,5 +160,19 @@ describe("Matrix.run (custom effect)", () => {
     expect(frames).toBe(3);
     expect(mock.packets.filter((p) => p[1] === 0xc0 && p[2] === 0x03).length).toBe(3);
     await m.close();
+  });
+});
+
+describe("isDaemonRunning", () => {
+  it("returns false when there is no session bus at all", async () => {
+    const saved = { ...process.env };
+    delete process.env.DBUS_SESSION_BUS_ADDRESS;
+    delete process.env.DISPLAY;
+    process.env.XDG_RUNTIME_DIR = "/nonexistent";
+    try {
+      await expect(isDaemonRunning()).resolves.toBe(false);
+    } finally {
+      process.env = saved;
+    }
   });
 });

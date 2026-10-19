@@ -24,6 +24,11 @@ echo "==> deploying packages"
 pnpm --filter @anshmehta7x/animatrixd deploy --legacy --prod "$STAGE/lib/daemon" >/dev/null
 pnpm --filter @anshmehta7x/animatrix-cli deploy --legacy --prod "$STAGE/lib/cli" >/dev/null
 pnpm --filter @anshmehta7x/animatrix-tray deploy --legacy --prod "$STAGE/lib/tray" >/dev/null
+# Stamp the release version (the tag) into what the daemon, CLI and tray report.
+for p in daemon cli tray; do
+  node -e 'const f=process.argv[1],j=require(f);j.version=process.argv[2];require("fs").writeFileSync(f,JSON.stringify(j,null,2)+"\n")' \
+    "$STAGE/lib/$p/package.json" "$VERSION"
+done
 if [ ! -x "$STAGE/lib/tray/node_modules/electron/dist/electron" ]; then
   (cd "$STAGE/lib/tray/node_modules/electron" && node install.js)
 fi

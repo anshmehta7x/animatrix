@@ -96,6 +96,7 @@ VERSION="$(cat "$SRC/VERSION")"
 bold "installing animatrix $VERSION to $DEST"
 systemctl --user stop animatrixd 2>/dev/null || true
 pkill -f "$DEST/" 2>/dev/null || true  # tray (any layout)
+mkdir -p "$(dirname "$DEST")"
 rm -rf "$DEST.new" && mv "$SRC" "$DEST.new"
 rm -rf "$DEST" && mv "$DEST.new" "$DEST"
 
@@ -159,7 +160,8 @@ if have systemctl && systemctl is-active --quiet asusd 2>/dev/null; then
   warn "asusd is running and claims the AniMe device. Stop it to use animatrix: sudo systemctl stop asusd"
 fi
 case ":$PATH:" in *":$PREFIX/bin:"*) ;; *) warn "$PREFIX/bin isn't on your PATH; add it to use the animatrix command." ;; esac
-if [ "${XDG_CURRENT_DESKTOP:-}" != "${XDG_CURRENT_DESKTOP/GNOME/}" ] &&
+DESKTOP_NAME="${XDG_CURRENT_DESKTOP:-}"
+if [ "$DESKTOP_NAME" != "${DESKTOP_NAME/GNOME/}" ] &&
   ! (have gnome-extensions && gnome-extensions list --enabled 2>/dev/null | grep -q appindicator); then
   warn "GNOME has no tray by default. For the tray icon install gnome-shell-extension-appindicator,"
   warn "log out and back in, then: gnome-extensions enable appindicatorsupport@rgcjonas.gmail.com"

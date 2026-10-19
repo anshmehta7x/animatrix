@@ -67,16 +67,18 @@ export function fromDbusError(err: unknown): AnimatrixError {
 /** True if animatrixd currently owns its bus name. */
 export async function isDaemonRunning(bus?: dbus.MessageBus): Promise<boolean> {
   const own = !bus;
-  const b = bus ?? dbus.sessionBus();
-  b.on("error", () => undefined);
+  let b: dbus.MessageBus | null = null;
   try {
+    // sessionBus() throws synchronously when there is no session bus at all.
+    b = bus ?? dbus.sessionBus();
+    b.on("error", () => undefined);
     const obj = await b.getProxyObject("org.freedesktop.DBus", "/org/freedesktop/DBus");
     const iface = obj.getInterface("org.freedesktop.DBus") as unknown as DbusProxy;
     return await iface.NameHasOwner(BUS_NAME);
   } catch {
     return false;
   } finally {
-    if (own) b.disconnect();
+    if (own) b?.disconnect();
   }
 }
 
