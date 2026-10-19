@@ -19,6 +19,13 @@ jobs:
       - run: corepack enable
       - name: Build release tarball
         run: ./scripts/package-release.sh "${GITHUB_REF_NAME#v}"
+      - name: End-to-end tests against the packed bundle
+        run: |
+          mkdir -p "$RUNNER_TEMP/bundle"
+          tar -xzf dist/animatrix-*-linux-x64.tar.gz -C "$RUNNER_TEMP/bundle"
+          BUNDLE="$(echo "$RUNNER_TEMP"/bundle/animatrix-*-linux-x64)"
+          mkdir -p "$BUNDLE/node/bin" && ln -s "$(command -v node)" "$BUNDLE/node/bin/node"
+          ANIMATRIX_E2E_BUNDLE="$BUNDLE" pnpm test:e2e
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

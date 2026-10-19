@@ -1,6 +1,6 @@
 {
   "name": "@anshmehta7x/animatrixd",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "animatrixd: the AniMe Matrix daemon (device owner, scheduler, power policy, D-Bus API)",
   "license": "MIT",

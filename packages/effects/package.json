@@ -1,6 +1,6 @@
 {
   "name": "@anshmehta7x/animatrix-effects",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Effect plugins for the AniMe Matrix: media, text, clock, visualiser, generative",
   "license": "MIT",

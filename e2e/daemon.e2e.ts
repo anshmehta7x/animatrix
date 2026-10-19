@@ -3,9 +3,10 @@
  * and the CLI, with the mock device's packets checked byte for byte.
  */
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Matrix, type DaemonState } from "@anshmehta7x/animatrix";
-import { Harness, hasDbusDaemon, waitFor } from "./harness.js";
+import { Harness, hasDbusDaemon, waitFor, writePng } from "./harness.js";
 
 const INIT = `5e${Buffer.from("ASUS Tech.Inc.").toString("hex")}`;
 const PANE = "5ec002";
@@ -111,6 +112,19 @@ describe.skipIf(!hasDbusDaemon())("animatrixd end to end", () => {
     expect((await h.cli("on")).code).toBe(0);
     await h.waitForPacket(`${DISPLAY}00`, since, "display on");
     expect((await h.cli("brightness", "high")).code).toBe(0);
+  });
+
+  it("decodes and shows an image file", async () => {
+    const png = join(h.dir, "half.png");
+    writePng(png, 68, 44, (x) => x >= 34);
+    const since = h.packets().length;
+    const res = await h.cli("image", png, "--fit", "stretch");
+    expect(res.code, res.err).toBe(0);
+    await h.waitForPacket(FLUSH, since);
+    const frame = lastFrame(h.packets(), slots);
+    expect(frame.filter((v) => v > 200).length).toBeGreaterThan(300);
+    expect(frame.filter((v) => v === 0).length).toBeGreaterThan(300);
+    expect((await (await h.client()).state()).effect).toBe("image");
   });
 
   it("hands the panel to firmware animations", async () => {

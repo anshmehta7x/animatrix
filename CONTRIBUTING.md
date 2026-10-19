@@ -5,6 +5,7 @@ corepack enable && pnpm install
 pnpm build          # tsc -b for all packages
 pnpm test           # vitest; no hardware needed (MockTransport)
 pnpm test:e2e       # built daemon + CLI on a private D-Bus bus (needs pnpm build, dbus-daemon)
+                    # ANIMATRIX_E2E_BUNDLE=<unpacked release> runs it against a release bundle
 pnpm lint && pnpm format:check && pnpm typecheck
 pnpm -C apps/tray build && pnpm -C apps/tray start   # the panel
 node packages/daemon/dist/main.js --mock            # a daemon with no device, for UI work

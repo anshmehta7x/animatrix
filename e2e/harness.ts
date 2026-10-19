@@ -4,14 +4,24 @@
  * lid. Nothing here touches the real session bus or hardware.
  */
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { crc32, deflateSync } from "node:zlib";
 import { DaemonClient } from "@anshmehta7x/animatrix";
 
 const root = new URL("..", import.meta.url).pathname;
-export const DAEMON = join(root, "packages/daemon/dist/main.js");
-export const CLI = join(root, "packages/cli/dist/main.js");
+/**
+ * ANIMATRIX_E2E_BUNDLE=<unpacked release dir> runs the release launchers instead of the
+ * workspace build, so the pruned bundle gets the same tests.
+ */
+const bundle = process.env.ANIMATRIX_E2E_BUNDLE || null;
+const DAEMON: string[] = bundle
+  ? [join(bundle, "bin/animatrixd")]
+  : [process.execPath, join(root, "packages/daemon/dist/main.js")];
+const CLI: string[] = bundle
+  ? [join(bundle, "bin/animatrix")]
+  : [process.execPath, join(root, "packages/cli/dist/main.js")];
 
 export interface CliResult {
   code: number | null;
@@ -41,6 +51,39 @@ function exited(p: ChildProcess): Promise<number | null> {
   return p.exitCode !== null
     ? Promise.resolve(p.exitCode)
     : new Promise((r) => p.once("exit", (code) => r(code)));
+}
+
+/** Write a greyscale PNG, white where `lit(x, y)` is true, so tests can exercise image decoding. */
+export function writePng(
+  file: string,
+  w: number,
+  h: number,
+  lit: (x: number, y: number) => boolean,
+): void {
+  const chunk = (type: string, data: Buffer): Buffer => {
+    const body = Buffer.concat([Buffer.from(type, "ascii"), data]);
+    const out = Buffer.alloc(body.length + 8);
+    out.writeUInt32BE(data.length, 0);
+    body.copy(out, 4);
+    out.writeUInt32BE(crc32(body), body.length + 4);
+    return out;
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0);
+  ihdr.writeUInt32BE(h, 4);
+  ihdr[8] = 8; // bit depth; colour type 0 (grey), no interlace
+  const rows = Buffer.alloc((w + 1) * h);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) rows[y * (w + 1) + 1 + x] = lit(x, y) ? 255 : 0;
+  writeFileSync(
+    file,
+    Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      chunk("IHDR", ihdr),
+      chunk("IDAT", deflateSync(rows)),
+      chunk("IEND", Buffer.alloc(0)),
+    ]),
+  );
 }
 
 export class Harness {
@@ -89,8 +132,8 @@ export class Harness {
 
   spawnDaemon(extra: string[] = []): ChildProcess {
     const p = spawn(
-      process.execPath,
-      [DAEMON, "--mock", "--record", this.record, "--config", this.config, ...extra],
+      DAEMON[0]!,
+      [...DAEMON.slice(1), "--mock", "--record", this.record, "--config", this.config, ...extra],
       { env: this.env, stdio: ["ignore", "pipe", "pipe"] },
     );
     p.stdout!.on("data", (d: Buffer) => (this.daemonLog += d.toString()));
@@ -115,7 +158,7 @@ export class Harness {
 
   /** Run the built CLI against the private bus. */
   cli(...args: string[]): Promise<CliResult> {
-    const p = spawn(process.execPath, [CLI, ...args], {
+    const p = spawn(CLI[0]!, [...CLI.slice(1), ...args], {
       env: this.env,
       stdio: ["ignore", "pipe", "pipe"],
     });

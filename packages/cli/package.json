@@ -1,6 +1,6 @@
 {
   "name": "@anshmehta7x/animatrix-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "animatrix: command-line control for the AniMe Matrix",
   "license": "MIT",
