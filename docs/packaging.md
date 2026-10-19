@@ -17,11 +17,21 @@ make install-udev DESTDIR="$pkgdir" UDEVDIR=/usr/lib/udev/rules.d
 
 Notes for packagers:
 
-- **Node ABI.** The wrappers pin `NODE`, because native modules (node-hid, usb, sharp) must run on the ABI they were installed for, and systemd user units do not see shell PATH tweaks such as nvm. Build with the same Node the package depends on (≥ 22).
+- **Node.** The wrappers pin `NODE` because systemd user units don't see shell PATH tweaks such as nvm. The native modules (node-hid, usb, sharp) use Node-API, so any Node ≥ 22 runs them.
 - **Runtime dependencies:** nodejs ≥ 22, ffmpeg (video), pipewire-utils or pulseaudio-utils (visualiser), dbus (`dbus-monitor` for the optional notification flash), systemd (`systemd-inhibit`), and libudev (node-hid).
 - **No distro-specific code paths.** Detection uses DMI sysfs, `/proc` and D-Bus only.
 - Users enable the service themselves (`systemctl --user enable --now animatrixd`). Don't enable it globally; a laptop without an AniMe Matrix would log "unsupported model" and do nothing.
 - The tray bundles Electron. A distro could use its system Electron instead by pointing `animatrix-tray` at it, if the version is ≥ 33.
+
+## Release tarball and one-line installer
+
+`scripts/package-release.sh <version>` builds `dist/animatrix-<version>-linux-x64.tar.gz` (about 130 MB). The tag workflow builds it, runs the e2e suite against the packed bundle, and publishes it with a `.sha256`.
+
+- **Contents:** the deployed daemon, CLI and tray (with Electron), the launchers, the udev rule, the unit and desktop templates, icons and `uninstall.sh`. Other platforms' native prebuilds, C sources, type declarations and source maps are pruned, and Chromium's licence file is gzipped.
+- **Node isn't bundled.** `install.sh` links `node/bin/node` to the first Node ≥ 22 it finds: `/usr/bin/node`, `/usr/local/bin/node`, then the `node` on PATH (nvm, fnm), resolved to its real versioned path. Shims (Volta) and temporary per-shell paths are skipped. Otherwise it downloads the version in the tarball's `NODE_VERSION` from nodejs.org and checks it against `SHASUMS256.txt`. `ANIMATRIX_BUNDLE_NODE=1` forces the download.
+- If the linked Node disappears later, the launchers say so and point at the installer.
+
+Installed size is about 295 MB with an existing Node, or about 415 MB with a downloaded one. Electron is most of it.
 
 ## Fedora (RPM)
 
