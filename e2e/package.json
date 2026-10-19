@@ -1,0 +1,9 @@
+{
+  "name": "animatrix-e2e",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end tests: the built daemon and CLI on a private D-Bus bus with a recording mock device",
+  "dependencies": {
+    "@anshmehta7x/animatrix": "workspace:*"
+  }
+}

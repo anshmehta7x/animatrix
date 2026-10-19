@@ -30,6 +30,8 @@ jobs:
         run: pnpm format:check
       - name: Test (MockTransport, no hardware)
         run: pnpm test
+      - name: End-to-end (built daemon + CLI on a private D-Bus bus)
+        run: pnpm test:e2e
       - name: Build tray renderer and Electron bundles
         run: pnpm -C apps/tray build
       - name: API docs

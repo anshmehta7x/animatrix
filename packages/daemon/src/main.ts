@@ -2,9 +2,12 @@
 /**
  * animatrixd: the single process that writes to the AniMe Matrix. Run as a systemd user service.
  *
- *   animatrixd [--model GA402] [--mock] [--quiet]
+ *   animatrixd [--model GA402] [--mock [--record <file>]] [--quiet]
+ *
+ * `--record` appends every packet the mock device receives to <file>, one hex line each
+ * (used by the end-to-end tests).
  */
-import { readFileSync } from "node:fs";
+import { appendFileSync, readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import dbus from "dbus-next";
 import { AnimeDevice, BUS_NAME, OBJECT_PATH, type Transport } from "@anshmehta7x/animatrix";
@@ -17,12 +20,16 @@ import { Policy } from "./policy.js";
 import { PowerMonitor } from "./power.js";
 import { MatrixInterface } from "./service.js";
 
-const nullTransport: Transport = {
-  kind: "mock",
-  path: "null",
-  send: async () => undefined,
-  close: async () => undefined,
-};
+function mockTransport(record: string | undefined): Transport {
+  return {
+    kind: "mock",
+    path: record ?? "null",
+    send: async (p) => {
+      if (record) appendFileSync(record, `${Buffer.from(p).toString("hex")}\n`);
+    },
+    close: async () => undefined,
+  };
+}
 
 async function main(): Promise<void> {
   const { values } = parseArgs({
@@ -31,6 +38,7 @@ async function main(): Promise<void> {
       mock: { type: "boolean", default: false },
       quiet: { type: "boolean", default: false },
       config: { type: "string" },
+      record: { type: "string" },
     },
   });
   const log = consoleLogger(values.quiet);
@@ -59,7 +67,8 @@ async function main(): Promise<void> {
   const services = new Services();
   const model = values.model ?? (config.device.model || (values.mock ? "GA402" : undefined));
   const ctl = new Controller({
-    openDevice: () => AnimeDevice.open({ model, transport: values.mock ? nullTransport : "auto" }),
+    openDevice: () =>
+      AnimeDevice.open({ model, transport: values.mock ? mockTransport(values.record) : "auto" }),
     config,
     saveConfig: save,
     registry,

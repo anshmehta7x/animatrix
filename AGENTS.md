@@ -7,9 +7,10 @@ animatrix is a TypeScript (strict) pnpm monorepo that drives the ASUS ROG AniMe 
 ```sh
 corepack enable && pnpm install
 pnpm build          # tsc -b for core, effects, animatrix, daemon, cli
-pnpm typecheck      # also the tray and examples
+pnpm typecheck      # also the tray, examples and e2e
 pnpm lint && pnpm format:check
 pnpm test           # vitest; hardware-free (MockTransport)
+pnpm test:e2e       # e2e/: built daemon + CLI on a private D-Bus bus, mock device records packets
 pnpm -C apps/tray build
 ```
 

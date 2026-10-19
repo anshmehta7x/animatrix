@@ -11,11 +11,12 @@
   },
   "scripts": {
     "build": "tsc -b packages/core packages/animatrix packages/effects packages/daemon packages/cli",
-    "typecheck": "tsc -b packages/core packages/animatrix packages/effects packages/daemon packages/cli && tsc -p apps/tray --noEmit && tsc -p examples",
+    "typecheck": "tsc -b packages/core packages/animatrix packages/effects packages/daemon packages/cli && tsc -p apps/tray --noEmit && tsc -p examples && tsc -p e2e",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "test:e2e": "vitest run -c vitest.e2e.config.ts",
     "docs:api": "typedoc"
   },
   "devDependencies": {
