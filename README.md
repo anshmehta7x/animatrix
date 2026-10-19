@@ -25,7 +25,7 @@ It comes in four parts:
 curl -fsSL https://raw.githubusercontent.com/anshmehta7x/animatrix/main/install.sh | bash
 ```
 
-This downloads a self-contained release (it bundles its own Node.js and Electron) into `~/.local`, and asks for your password once to install the udev rule. It then starts the `animatrixd` user service and adds the tray to your login items. Run the same line again to update. To remove everything, run `~/.local/lib/animatrix/uninstall.sh` (add `--purge` to delete your config too).
+This downloads a release (with its own Electron) into `~/.local`. It uses your system Node.js if it is version 22 or newer, and otherwise downloads one from nodejs.org. It asks for your password once to install the udev rule. It then starts the `animatrixd` user service and adds the tray to your login items. Run the same line again to update. To remove everything, run `~/.local/lib/animatrix/uninstall.sh` (add `--purge` to delete your config too).
 
 Video playback needs `ffmpeg`. The visualiser needs PipeWire's `pw-record` or PulseAudio's `parec`. Most desktops already have both.
 

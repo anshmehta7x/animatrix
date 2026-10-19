@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build a self-contained release tarball: dist/animatrix-<version>-linux-x64.tar.gz
-# Contents: bundled Node runtime, deployed daemon/cli/tray (with Electron and native modules),
+# Contents: deployed daemon/cli/tray (with Electron and native modules),
 # launchers, udev rule, systemd unit, desktop entry, icons, uninstall.sh.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -14,7 +14,7 @@ STAGE="$OUT/$NAME"
 
 [ "$(uname -m)" = "x86_64" ] || { echo "release builds are x86_64 only" >&2; exit 1; }
 
-echo "==> building ($VERSION, bundling Node $NODE_VERSION)"
+echo "==> building ($VERSION, for Node $NODE_VERSION)"
 pnpm install --frozen-lockfile
 pnpm build
 pnpm -C apps/tray build
@@ -36,15 +36,23 @@ fi
 # Electron's Chromium UI locales are unused (the panel is English); keep en-US only.
 find "$STAGE/lib/tray/node_modules/.pnpm/" -path "*electron/dist/locales/*.pak" ! -name "en-US.pak" -delete
 
-echo "==> bundling Node $NODE_VERSION"
-NODE_TGZ="node-${NODE_VERSION}-linux-x64.tar.xz"
-CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/animatrix-release"
-mkdir -p "$CACHE"
-[ -f "$CACHE/$NODE_TGZ" ] || curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/${NODE_TGZ}" -o "$CACHE/$NODE_TGZ"
-mkdir -p "$STAGE/node/bin"
-tar -xJf "$CACHE/$NODE_TGZ" -C "$STAGE/node/bin" --strip-components=2 "node-${NODE_VERSION}-linux-x64/bin/node"
-tar -xJf "$CACHE/$NODE_TGZ" -C "$CACHE" "node-${NODE_VERSION}-linux-x64/LICENSE"
-cp "$CACHE/node-${NODE_VERSION}-linux-x64/LICENSE" "$STAGE/node/LICENSE"
+echo "==> pruning"
+for app in daemon cli tray; do
+  M="$STAGE/lib/$app/node_modules/.pnpm"
+  # Native prebuilds for other platforms, and the C sources they were built from.
+  find "$M" -path "*/node-hid/prebuilds/*" -maxdepth 5 -type d ! -name "HID-linux-x64" ! -name "HID_hidraw-linux-x64" -prune -exec rm -rf {} +
+  find "$M" -path "*/usb/prebuilds/*" -maxdepth 5 -type d ! -name "linux-x64" -prune -exec rm -rf {} +
+  rm -rf "$M"/node-hid@*/node_modules/node-hid/{hidapi,src} "$M"/usb@*/node_modules/usb/{libusb,src}
+  # Type declarations and docs aren't needed at runtime.
+  rm -rf "$M"/@types+*
+  find "$M" -type f \( -name "*.d.ts" -o -name "*.d.mts" -o -name "*.d.cts" -o -name "*.map" -o -iname "README*" -o -iname "CHANGELOG*" \) -delete
+done
+# Chromium's licence file must ship, but it compresses from 20 MB to under 2.
+gzip -9 "$STAGE"/lib/tray/node_modules/.pnpm/electron@*/node_modules/electron/dist/LICENSES.chromium.html
+
+# Node isn't bundled: install.sh uses the system Node when it's new enough and otherwise
+# downloads this exact version from nodejs.org (verified against its SHASUMS256.txt).
+echo "${NODE_VERSION#v}" > "$STAGE/NODE_VERSION"
 
 echo "==> launchers and data files"
 for b in animatrixd animatrix animatrix-tray; do
@@ -60,10 +68,13 @@ install -m 644 LICENSE NOTICE README.md "$STAGE/"
 echo "$VERSION" > "$STAGE/VERSION"
 
 echo "==> smoke test"
-# Loads core, effects (sharp) and the library; then the native HID and USB modules.
+# Loads core, effects (sharp) and the library, then enumerates through the pruned native HID
+# and USB modules (read-only). Uses the build Node through the same link the installer makes.
+mkdir -p "$STAGE/node/bin" && ln -sf "$(command -v node)" "$STAGE/node/bin/node"
 "$STAGE/bin/animatrix" builtins list >/dev/null
 LIBPKG="$(readlink -f "$STAGE/lib/daemon/node_modules/@anshmehta7x/animatrix/package.json")"
-"$STAGE/node/bin/node" -e "const r=require('module').createRequire('$LIBPKG'); r('node-hid'); r('usb'); r('dbus-next')"
+node -e "const r=require('module').createRequire('$LIBPKG'); r('node-hid').devices(); r('usb').getDeviceList(); r('dbus-next')"
+rm -rf "$STAGE/node"
 [ -x "$STAGE/lib/tray/node_modules/electron/dist/electron" ]
 
 echo "==> packing"

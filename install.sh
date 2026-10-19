@@ -10,6 +10,7 @@
 #   ANIMATRIX_PREFIX=~/.local  install prefix (default ~/.local)
 #   ANIMATRIX_NO_UDEV=1        skip the udev rule (no sudo)
 #   ANIMATRIX_NO_ENABLE=1      don't enable/start the daemon or autostart the tray
+#   ANIMATRIX_BUNDLE_NODE=1    download Node.js even if the system has Node 22+
 set -euo pipefail
 
 REPO="anshmehta7x/animatrix"
@@ -91,6 +92,37 @@ tar -xzf "$TARBALL" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'animatrix-*' | head -1)"
 [ -n "$SRC" ] && [ -x "$SRC/bin/animatrixd" ] || die "tarball doesn't look like an animatrix release."
 VERSION="$(cat "$SRC/VERSION")"
+
+# ---------------------------------------------------------------- Node.js
+# Done before touching the existing install, so a failed download leaves it working.
+# Older releases bundle Node; newer ones link the system Node 22+ or download one.
+if [ ! -x "$SRC/node/bin/node" ]; then
+  SYS_NODE=""
+  if [ "${ANIMATRIX_BUNDLE_NODE:-0}" != 1 ]; then
+    for n in /usr/bin/node /usr/local/bin/node; do
+      major="$("$n" -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)"
+      if [ "$major" -ge 22 ]; then SYS_NODE="$n" && break; fi
+    done
+  fi
+  mkdir -p "$SRC/node/bin"
+  if [ -n "$SYS_NODE" ]; then
+    ln -s "$SYS_NODE" "$SRC/node/bin/node"
+    info "using the system Node.js $("$SYS_NODE" -v) ($SYS_NODE)"
+  else
+    have xz || die "xz is required to unpack Node.js. Install xz, or nodejs 22+ from your distro, and re-run."
+    NODE_V="$(cat "$SRC/NODE_VERSION")"
+    NODE_DIR="node-v$NODE_V-linux-x64"
+    info "downloading Node.js v$NODE_V (no system Node 22+ found)"
+    curl -fsSL "https://nodejs.org/dist/v$NODE_V/$NODE_DIR.tar.xz" -o "$WORK/$NODE_DIR.tar.xz" ||
+      die "could not download Node.js from nodejs.org."
+    curl -fsSL "https://nodejs.org/dist/v$NODE_V/SHASUMS256.txt" -o "$WORK/SHASUMS256.txt" ||
+      die "could not download Node.js checksums from nodejs.org."
+    (cd "$WORK" && grep " $NODE_DIR.tar.xz\$" SHASUMS256.txt | sha256sum -c --quiet) ||
+      die "Node.js checksum mismatch; download corrupted."
+    tar -xJf "$WORK/$NODE_DIR.tar.xz" -C "$SRC/node/bin" --strip-components=2 "$NODE_DIR/bin/node"
+    tar -xJf "$WORK/$NODE_DIR.tar.xz" -C "$SRC/node" --strip-components=1 "$NODE_DIR/LICENSE"
+  fi
+fi
 
 # ---------------------------------------------------------------- install files
 bold "installing animatrix $VERSION to $DEST"

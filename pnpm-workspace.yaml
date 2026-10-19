@@ -9,3 +9,7 @@ onlyBuiltDependencies:
   - node-hid
   - usb
   - sharp
+overrides:
+  # dbus-next's optional native socket add-on: never built here (dbus-next falls back to net),
+  # and it pulls node-gyp plus the old request stack into every bundle.
+  usocket: "-"
