@@ -97,9 +97,16 @@ VERSION="$(cat "$SRC/VERSION")"
 # Done before touching the existing install, so a failed download leaves it working.
 # Older releases bundle Node; newer ones link the system Node 22+ or download one.
 if [ ! -x "$SRC/node/bin/node" ]; then
+  # System Node first; then the one on PATH (nvm, fnm, ...), resolved to its real versioned
+  # path because the systemd service doesn't see shell PATH tweaks. Shims (Volta) and per-shell
+  # temporary paths are skipped.
   SYS_NODE=""
   if [ "${ANIMATRIX_BUNDLE_NODE:-0}" != 1 ]; then
-    for n in /usr/bin/node /usr/local/bin/node; do
+    PATH_NODE="$(command -v node 2>/dev/null || true)"
+    [ -n "$PATH_NODE" ] && PATH_NODE="$(readlink -f "$PATH_NODE")"
+    for n in /usr/bin/node /usr/local/bin/node "$PATH_NODE"; do
+      [ -n "$n" ] && [ "$(basename "$n")" = node ] || continue
+      case "$n" in /tmp/* | /run/* | /var/tmp/*) continue ;; esac
       major="$("$n" -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)"
       if [ "$major" -ge 22 ]; then SYS_NODE="$n" && break; fi
     done
@@ -107,7 +114,11 @@ if [ ! -x "$SRC/node/bin/node" ]; then
   mkdir -p "$SRC/node/bin"
   if [ -n "$SYS_NODE" ]; then
     ln -s "$SYS_NODE" "$SRC/node/bin/node"
-    info "using the system Node.js $("$SYS_NODE" -v) ($SYS_NODE)"
+    info "using Node.js $("$SYS_NODE" -v) ($SYS_NODE)"
+    case "$SYS_NODE" in
+      /usr/*) ;;
+      *) info "if you uninstall this Node version later, re-run this installer" ;;
+    esac
   else
     have xz || die "xz is required to unpack Node.js. Install xz, or nodejs 22+ from your distro, and re-run."
     NODE_V="$(cat "$SRC/NODE_VERSION")"
