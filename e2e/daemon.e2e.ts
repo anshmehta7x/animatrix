@@ -193,4 +193,9 @@ describe.skipIf(!hasDbusDaemon())("animatrixd end to end", () => {
     expect(h.packets()[since]).toBe(INIT.padEnd(PACKET_HEX, "0"));
     expect((await (await h.client()).state()).connected).toBe(true);
   });
+
+  it("exits non-zero when the session bus goes away, so systemd restarts it", async () => {
+    expect(await h.killBus()).toBe(1);
+    expect(h.daemonLog).toMatch(/session bus connection lost/);
+  });
 });

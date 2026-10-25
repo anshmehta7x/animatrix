@@ -99,7 +99,7 @@ async function main(): Promise<void> {
   flasher.configure(config.notifications.flash, config.notifications.showText);
   log.info("animatrixd ready", { version, config: cfgFile, mock: values.mock });
 
-  const quit = async (): Promise<void> => {
+  const quit = async (code = 0): Promise<void> => {
     log.info("shutting down");
     policy.stop();
     flasher.stop();
@@ -107,10 +107,16 @@ async function main(): Promise<void> {
     services.dispose();
     await ctl.shutdown().catch(() => undefined);
     bus.disconnect();
-    process.exit(0);
+    process.exit(code);
   };
   process.on("SIGTERM", () => void quit());
   process.on("SIGINT", () => void quit());
+  // GNOME restarts the session bus on logout. Exit non-zero so systemd restarts us on the new
+  // bus; dbus-next doesn't forward the connection's "end" to the MessageBus itself.
+  (bus as unknown as { _connection: NodeJS.EventEmitter })._connection.once("end", () => {
+    log.warn("session bus connection lost; exiting so systemd restarts animatrixd");
+    void quit(1);
+  });
 }
 
 main().catch((err: unknown) => {

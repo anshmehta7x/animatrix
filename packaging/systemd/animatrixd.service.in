@@ -1,13 +1,16 @@
 [Unit]
 Description=animatrix daemon (ASUS AniMe Matrix)
 Documentation=https://github.com/anshmehta7x/animatrix
+# The session bus restarts on GNOME logout; keep retrying for as long as that takes.
+StartLimitIntervalSec=0
 
 [Service]
-Type=dbus
-BusName=dev.animatrix.Matrix1
+# Not Type=dbus: systemd would treat the bus restart as a clean stop and never start us again
+# while the user manager lingers across logout/login.
+Type=exec
 ExecStart=@BINDIR@/animatrixd
-Restart=on-failure
-RestartSec=3
+Restart=always
+RestartSec=2
 
 [Install]
 WantedBy=default.target

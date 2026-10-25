@@ -186,6 +186,16 @@ export class Harness {
     );
   }
 
+  /** Kill the bus (like GNOME restarting it on logout) and return the daemon's exit code. */
+  async killBus(): Promise<number | null> {
+    const daemon = this.daemon;
+    this.daemon = null;
+    this.dbus?.kill("SIGKILL");
+    if (this.dbus) await exited(this.dbus);
+    this.dbus = null;
+    return daemon ? exited(daemon) : null;
+  }
+
   async stop(): Promise<void> {
     this.clients.forEach((c) => c.close());
     await this.stopDaemon();

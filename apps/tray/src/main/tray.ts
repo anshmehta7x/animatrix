@@ -19,6 +19,12 @@ export function createTray(iconPath: string, link: DaemonLink, a: TrayActions): 
   const tray = new Tray(nativeImage.createFromPath(iconPath));
   tray.setToolTip("animatrix");
   const rebuild = (): void => {
+    // main.ts recreates the tray when a StatusNotifier host reappears; drop the old one's hooks.
+    if (tray.isDestroyed()) {
+      link.off("changed", rebuild);
+      link.off("state", rebuild);
+      return;
+    }
     const s = link.state;
     const c = link.client;
     const scenes = Object.keys(link.config?.scenes ?? {});
