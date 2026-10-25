@@ -8,6 +8,7 @@ import {
   Settings2,
   Sparkles,
   BatteryCharging,
+  X,
 } from "lucide-react";
 import { Preview } from "./components/Preview";
 import {
@@ -75,6 +76,14 @@ export function App(): ReactNode {
   }, [page]);
   return (
     <main className={styles.panel}>
+      <button
+        className={styles.quit}
+        aria-label="Quit animatrix"
+        title="Quit"
+        onClick={() => void call("quit")}
+      >
+        <X size={14} />
+      </button>
       <Preview compact={page !== null} onDropped={() => setPage("media")} />
       <TopControls />
       <NoticeBar />
